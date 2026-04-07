@@ -16,3 +16,7 @@ management:
     sampling.probability: 1.0
     enabled: true
   otlp.metrics.export.step: 5s
+  observations.annotations.enabled: true
+  opentelemetry:
+    tracing.export.otlp.endpoint: http://localhost:4318/v1/traces
+    logging.export.otlp.endpoint: http://localhost:4318/v1/logs
