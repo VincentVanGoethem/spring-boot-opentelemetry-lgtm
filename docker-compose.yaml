@@ -1,37 +1,35 @@
 services:
   ### APPLICATION
-  order-service:
-    image: tiffanyfay/spring-boot-order-service:${VERSION}
-    # build:
-    #   context: ./order-service
-    ports:
-      - "8080:8081"
-    environment:
-      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT_GRPC}
-      - OTEL_RESOURCE_ATTRIBUTES=service.name=order-service
-      - OTEL_EXPORTER_OTLP_TRACES_PROTOCOL=grpc
-      - OTEL_EXPORTER_OTLP_METRICS_PROTOCOL=grpc
-      - OTEL_EXPORTER_OTLP_LOGS_PROTOCOL=grpc
-      - OTEL_METRICS_EXPORTER=otlp,logging-otlp
-      - OTEL_LOGS_EXPORTER=otlp
-      - OTEL_JAVAAGENT_ENABLED=true
-      - POSTGRES_HOST=${POSTGRES_HOST}
-      - POSTGRES_PORT=${POSTGRES_PORT}
-      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
-      - POSTGRES_USERNAME=${POSTGRES_USERNAME}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    depends_on:
-      - otelcol
-      - postgres
+  # order-service:
+  #   image: tiffanyfay/spring-boot-order-service:${VERSION}
+  #   # build:
+  #   #   context: ./order-service
+  #   ports:
+  #     - "8080:8081"
+  #   environment:
+  #     - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT}
+  #     - OTEL_RESOURCE_ATTRIBUTES=service.name=order-service
+  #     - OTEL_EXPORTER_OTLP_TRACES_PROTOCOL=grpc
+  #     - OTEL_EXPORTER_OTLP_METRICS_PROTOCOL=grpc
+  #     - OTEL_EXPORTER_OTLP_LOGS_PROTOCOL=grpc
+  #     - OTEL_METRICS_EXPORTER=otlp,logging-otlp
+  #     - OTEL_LOGS_EXPORTER=otlp
+  #     - OTEL_JAVAAGENT_ENABLED=true
+  #     - POSTGRES_HOST=${POSTGRES_HOST}
+  #     - POSTGRES_PORT=${POSTGRES_PORT}
+  #     - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+  #     - POSTGRES_USERNAME=${POSTGRES_USERNAME}
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+  #   depends_on:
+  #     - otelcol
+  #     - postgres
 
   mystery-box-service:
-    image: tiffanyfay/spring-boot-mystery-box-service:${VERSION}
-    # build:
-    #   context: ./mystery-box-service
+    image: tiffanyfay/spring-boot-mystery-box-service:apr6-2214
     ports:
       - "8080:8082"
     environment:
-      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT_GRPC}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT}
       - OTEL_RESOURCE_ATTRIBUTES=service.name=mystery-box-service
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OTEL_EXPORTER_OTLP_TRACES_PROTOCOL=grpc
