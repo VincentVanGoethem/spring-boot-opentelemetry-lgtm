@@ -1,0 +1,16 @@
+spring:
+  application.name: mystery-box-service
+
+server:
+  port: 8081
+  ai.openai-sdk:
+    api-key: ${OPENAI_API_KEY}
+    chat.options.model: gpt-4o-mini
+
+management:
+  endpoints.web.exposure.include: "*"
+  endpoint.env.show-values: ALWAYS
+  tracing:
+    sampling.probability: 1.0
+    enabled: true
+  otlp.metrics.export.step: 5s
