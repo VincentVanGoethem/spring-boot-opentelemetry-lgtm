@@ -31,10 +31,12 @@ services:
 
   mcp-grafana:
     image: grafana/mcp-grafana:latest
+    command: ["--transport", "streamable-http", "--address", "0.0.0.0:8888", "--debug"]
     ports:
-      - "8000:8000"
+      - "8888:8888"
     environment:
       GRAFANA_URL: http://lgtm:3000
-      GRAFANA_EXTRA_HEADERS: '{"Authorization": "Basic YWRtaW46YWRtaW4="}'
+      GRAFANA_USERNAME: admin
+      GRAFANA_PASSWORD: admin
     depends_on:
       - lgtm
