@@ -28,3 +28,13 @@ services:
       - ./grafana/dashboards-provisioning.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/custom.yaml:ro
     environment:
       GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /otel-lgtm/grafana/conf/provisioning/dashboards/custom/custom-custom-dashboard.json
+
+  mcp-grafana:
+    image: grafana/mcp-grafana:latest
+    ports:
+      - "8000:8000"
+    environment:
+      GRAFANA_URL: http://lgtm:3000
+      GRAFANA_EXTRA_HEADERS: '{"Authorization": "Basic YWRtaW46YWRtaW4="}'
+    depends_on:
+      - lgtm
