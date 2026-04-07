@@ -1,0 +1,22 @@
+spring:
+  application.name: order-service
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:5432/postgres
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:password}
+  sql.init.mode: always
+
+mystery-box-service:
+  url: ${MYSTERY_BOX_SERVICE_URL:http://localhost:8081}
+
+management:
+  endpoints.web.exposure.include: "*"
+  endpoint.env.show-values: ALWAYS
+  tracing:
+    sampling.probability: 1.0
+    enabled: true
+  otlp.metrics.export.step: 5s
+  observations.annotations.enabled: true
+  opentelemetry:
+    tracing.export.otlp.endpoint: http://localhost:4318/v1/traces
+    logging.export.otlp.endpoint: http://localhost:4318/v1/logs
