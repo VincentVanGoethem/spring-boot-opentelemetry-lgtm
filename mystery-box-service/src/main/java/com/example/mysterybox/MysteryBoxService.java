@@ -19,7 +19,7 @@ class MysteryBoxService {
     MysteryBox generateMysteryBox() {
         var mysteryBox = this.chatClient.prompt()
                 .system("The id value should be null.")
-                .user("Generate a random mystery box with 3–5 fun items")
+                .user("Generate a random mystery box with 3–5 fun, whimsical items from an ancient curiosity shop")
                 .call()
                 .entity(MysteryBox.class);
         return repository.save(mysteryBox);

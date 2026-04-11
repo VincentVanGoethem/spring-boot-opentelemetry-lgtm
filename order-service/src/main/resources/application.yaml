@@ -6,8 +6,29 @@ spring:
     password: ${DB_PASSWORD:password}
   sql.init.mode: always
 
-mystery-box-service:
-  url: ${MYSTERY_BOX_SERVICE_URL:http://localhost:8081}
+order:
+  mystery-box-api-url: ${MYSTERY_BOX_SERVICE_URL:http://localhost:8081}/api
+  products:
+    - sku: MAGIC_BOX
+      name: Magic Box
+      cost: 49.99
+      stock: 13
+    - sku: RUBBER-DUCK
+      name: Sentient Rubber Duck
+      cost: 4.99
+      stock: 42
+    - sku: FOREVER-PEN
+      name: Pen That Never Runs Out (It Does)
+      cost: 9.99
+      stock: 15
+    - sku: ALARM-CLOCK
+      name: Alarm Clock That Judges You
+      cost: 19.99
+      stock: 8
+    - sku: UMBRELLA
+      name: Umbrella That Inverts in Light Breeze
+      cost: 7.49
+      stock: 23
 
 management:
   endpoints.web.exposure.include: "*"

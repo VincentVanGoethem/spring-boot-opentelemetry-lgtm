@@ -1,4 +1,4 @@
-package com.example.order_service;
+package com.example;
 
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;

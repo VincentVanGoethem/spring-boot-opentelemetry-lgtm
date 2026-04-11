@@ -1,39 +1,33 @@
-package com.example.order_service;
+package com.example.orderservice;
 
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
+import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping(path = "/api/{version}/orders")
 public class OrderController {
 
-    private final OrderRepository orderRepository;
-    private final MysteryBoxClient mysteryBoxClient;
+    private final OrderService orderService;
 
-    public OrderController(OrderRepository orderRepository, MysteryBoxClient mysteryBoxClient) {
-        this.orderRepository = orderRepository;
-        this.mysteryBoxClient = mysteryBoxClient;
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
     }
 
-    record CreateOrderRequest(List<String> skus) {}
-
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Order createOrder(@RequestBody CreateOrderRequest request) {
-        List<OrderItem> items = request.skus().stream()
-                .map(sku -> sku.equalsIgnoreCase("MYSTERY-BOX")
-                        ? mysteryBoxClient.fetchItem()
-                        : new OrderItem(sku, sku, 0.0, List.of()))
-                .toList();
-        var order = new Order(items);
-        return orderRepository.save(order);
+    public ResponseEntity<Order> createOrder(@RequestBody CreateOrderRequest request, @PathVariable String version) {
+        var order = orderService.createOrder(request.lines());
+        var location = URI.create("/api/%s/orders/%s".formatted(version, order.id()));
+        return ResponseEntity.created(location).body(order);
     }
 
     @GetMapping
-    public List<Order> getOrders() {
-        return orderRepository.findAll();
+    public ResponseEntity<List<Order>> getOrders() {
+        return ResponseEntity.ok(orderService.getOrders());
     }
+
+    public record CreateOrderRequest(List<Order.OrderLine> lines) {}
+
 }

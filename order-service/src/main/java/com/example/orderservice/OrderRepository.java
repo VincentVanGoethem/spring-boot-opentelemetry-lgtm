@@ -1,6 +1,5 @@
-package com.example.order_service;
+package com.example.orderservice;
 
 import org.springframework.data.repository.ListCrudRepository;
 
-public interface OrderRepository extends ListCrudRepository<Order, Long> {
-}
+public interface OrderRepository extends ListCrudRepository<Order, Long> { }
