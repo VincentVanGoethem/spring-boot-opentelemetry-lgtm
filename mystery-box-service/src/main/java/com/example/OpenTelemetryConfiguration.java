@@ -26,6 +26,8 @@ public class OpenTelemetryConfiguration {
         return () -> OpenTelemetryAppender.install(openTelemetry);
     }
 
+    // Can be remove once Spring Boot 4.1 is available as all beans below will be auto-configured
+    // https://github.com/spring-projects/spring-boot/pull/47935
     @Bean
     OpenTelemetryServerRequestObservationConvention openTelemetryServerRequestObservationConvention() {
         return new OpenTelemetryServerRequestObservationConvention();

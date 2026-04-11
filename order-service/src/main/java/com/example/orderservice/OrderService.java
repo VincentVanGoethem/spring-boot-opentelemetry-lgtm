@@ -1,5 +1,8 @@
 package com.example.orderservice;
 
+import io.micrometer.observation.annotation.Observed;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -7,14 +10,18 @@ import java.util.List;
 
 import static org.springframework.web.client.ApiVersionInserter.usePathSegment;
 
+@Observed(name = "order.service")
 @Service
 class OrderService {
+
+    private static final Logger log = LoggerFactory.getLogger(OrderService.class);
 
     private final OrderRepository orderRepository;
     private final RestClient mysteryBoxClient;
     private final List<Product> products;
 
-    OrderService(OrderRepository orderRepository, RestClient.Builder restClientBuilder, OrderProperties orderProperties) {
+    OrderService(OrderRepository orderRepository, RestClient.Builder restClientBuilder,
+                 OrderProperties orderProperties) {
         this.orderRepository = orderRepository;
         this.mysteryBoxClient = restClientBuilder
                 .baseUrl(orderProperties.mysteryBoxApiUrl())
@@ -23,13 +30,19 @@ class OrderService {
     }
 
     Order createOrder(List<Order.OrderLine> lines) {
+        log.info("Creating order with {} line(s)", lines.size());
         lines.forEach(l -> l.validate(products));
-        var order = new Order(getOrderItems(lines));
-        return orderRepository.save(order);
+
+        var order = orderRepository.save(new Order(getOrderItems(lines)));
+        log.info("Order {} created", order.id());
+        log.debug("Order {} created: {}", order.id(), order);
+        return order;
     }
 
     List<Order> getOrders() {
-        return orderRepository.findAll();
+        var orders = orderRepository.findAll();
+        log.info("Fetching all {} orders", orders.size());
+        return orders;
     }
 
     private List<Order.OrderItem> getOrderItems(List<Order.OrderLine> lines) {
@@ -40,10 +53,13 @@ class OrderService {
     }
 
     private MysteryBox createMysteryBox() {
-        return mysteryBoxClient.post()
+        log.info("Requesting mystery box from mystery-box-service");
+        var box = mysteryBoxClient.post()
                 .uri("/mysteryboxes").apiVersion(1)
                 .retrieve()
                 .body(MysteryBox.class);
+        log.info("Mystery box {} received with {} item(s)", box.id(), box.contents().size());
+        log.debug("Mystery box {} received: {}", box.id(), box);
+        return box;
     }
-
 }

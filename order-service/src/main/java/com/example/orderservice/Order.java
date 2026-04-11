@@ -21,6 +21,10 @@ public record Order(@Id @Nullable Long id, Instant createdAt,
         return new Order(id, createdAt, items);
     }
 
+    double value(List<Product> products) {
+        return items.stream().mapToDouble(item -> item.value(products)).sum();
+    }
+
     @Table("order_items")
     record OrderItem(@Id @Nullable Long id, String sku, int quantity,
                      @MappedCollection(idColumn = "order_item_id", keyColumn = "order_item_key") List<OrderItemContent> contents) {
@@ -31,6 +35,12 @@ public record Order(@Id @Nullable Long id, Instant createdAt,
 
         OrderItem withId(Long id) {
             return new OrderItem(id, sku, quantity, contents);
+        }
+
+        double value(List<Product> products) {
+            return products.stream().filter(p -> p.sku().equals(sku))
+                    .mapToDouble(p -> p.cost() * quantity)
+                    .findFirst().orElse(0.0);
         }
 
         @Table("order_item_contents")
