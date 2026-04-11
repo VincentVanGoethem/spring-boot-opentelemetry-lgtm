@@ -1,4 +1,4 @@
-package com.example.mystery_box_service;
+package com.example;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

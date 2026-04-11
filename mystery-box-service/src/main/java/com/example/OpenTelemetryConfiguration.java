@@ -1,4 +1,4 @@
-package com.example.mystery_box_service;
+package com.example;
 
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;
