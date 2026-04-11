@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path = "/api/v{version}/mysteryboxes")
+@RequestMapping(path = "/api/{version}/mysteryboxes")
 public class MysteryBoxController {
 
     private final MysteryBoxService mysteryBoxService;
@@ -22,7 +22,7 @@ public class MysteryBoxController {
     @PostMapping
     public ResponseEntity<MysteryBox> generateMysteryBox(@PathVariable String version) throws Exception {
         var mysteryBox = mysteryBoxService.generateMysteryBox();
-        var location = URI.create("/api/v%s/mysteryboxes/%s".formatted(version, mysteryBox.id()));
+        var location = URI.create("/api/%s/mysteryboxes/%s".formatted(version, mysteryBox.id()));
         return ResponseEntity.created(location).body(mysteryBox);
     }
 
