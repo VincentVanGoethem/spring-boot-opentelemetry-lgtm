@@ -9,8 +9,8 @@ spring:
 order:
   mystery-box-api-url: ${MYSTERY_BOX_SERVICE_URL:http://localhost:8081}/api
   products:
-    - sku: MAGIC_BOX
-      name: Magic Box
+    - sku: MYSTERY_BOX
+      name: Mystery Box
       cost: 49.99
       stock: 13
     - sku: RUBBER-DUCK

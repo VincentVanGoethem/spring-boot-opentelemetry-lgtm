@@ -8,6 +8,6 @@ public record MysteryBox(Long id, List<Item> contents) {
     Order.OrderItem toOrderItem() {
         var orderItemContents = contents.stream()
                 .map(c -> new Order.OrderItem.OrderItemContent(c.name(), c.description())).toList();
-        return new Order.OrderItem(Product.MAGIC_BOX_SKU, 1, orderItemContents);
+        return new Order.OrderItem(Product.MYSTERY_BOX_SKU, 1, orderItemContents);
     }
 }

@@ -46,10 +46,10 @@
       "fieldConfig": { "defaults": { "unit": "percent", "decimals": 1, "noValue": "—", "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "yellow", "value": 90 }, { "color": "green", "value": 99 }] }, "color": { "mode": "thresholds" } }, "overrides": [] }
     },
     {
-      "id": 5, "type": "stat", "title": "Magic Boxes (1 h)",
+      "id": 5, "type": "stat", "title": "Mystery Boxes (1 h)",
       "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
       "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "targets": [{ "expr": "increase(orders_items_ordered_total{sku='MAGIC_BOX'}[1h])", "refId": "A", "legendFormat": "" }],
+      "targets": [{ "expr": "increase(orders_items_ordered_total{sku='MYSTERY_BOX'}[1h])", "refId": "A", "legendFormat": "" }],
       "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "area", "justifyMode": "center" },
       "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "purple" }, "unit": "short", "noValue": "0" }, "overrides": [] }
     },

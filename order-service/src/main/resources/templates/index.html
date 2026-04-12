@@ -19,12 +19,12 @@
     <div id="products-grid">
       <th:block th:each="p : ${products}">
         <input type="hidden" th:name="${p.sku()}" th:id="'input-' + ${p.sku()}" value="0">
-        <div th:class="${p.sku() == 'MAGIC_BOX' ? 'product-card mystery' : 'product-card'}"
+        <div th:class="${p.sku() == 'MYSTERY_BOX' ? 'product-card mystery' : 'product-card'}"
              th:data-name="${p.name()}" th:data-cost="${p.cost()}">
           <div class="product-name" th:text="${p.name()}"></div>
           <div class="product-meta">
             <span class="product-price" th:text="'$' + ${#numbers.formatDecimal(p.cost(), 1, 2)}"></span>
-            <span class="product-stock" th:text="${p.sku() == 'MAGIC_BOX' ? 'One per order' : p.stock() + ' in stock'}"></span>
+            <span class="product-stock" th:text="${p.sku() == 'MYSTERY_BOX' ? 'One per order' : p.stock() + ' in stock'}"></span>
           </div>
           <div class="qty-control" th:data-sku="${p.sku()}">
             <button type="button" class="qty-btn" th:id="'dec-' + ${p.sku()}"

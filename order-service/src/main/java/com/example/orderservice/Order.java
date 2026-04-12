@@ -50,8 +50,8 @@ public record Order(@Id @Nullable Long id, Instant createdAt,
     record OrderLine(String sku, int quantity) {
 
         void validate(List<Product> products) {
-            if (Product.MAGIC_BOX_SKU.equals(sku) && quantity > 1) {
-                throw new OrderException.MagicBoxQuantityExceededException();
+            if (Product.MYSTERY_BOX_SKU.equals(sku) && quantity > 1) {
+                throw new OrderException.MysteryBoxQuantityExceededException();
             }
             var product = products.stream().filter(p -> p.sku().equals(sku)).findFirst()
                     .orElseThrow(() -> new OrderException.UnknownSkuException(sku));

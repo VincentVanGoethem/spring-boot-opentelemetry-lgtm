@@ -46,7 +46,7 @@ class OrderService {
     }
 
     private List<Order.OrderItem> getOrderItems(List<Order.OrderLine> lines) {
-        return lines.stream().map(line -> Product.MAGIC_BOX_SKU.equals(line.sku())
+        return lines.stream().map(line -> Product.MYSTERY_BOX_SKU.equals(line.sku())
                 ? createMysteryBox().toOrderItem()
                 : new Order.OrderItem(line.sku(), line.quantity(), List.of())
         ).toList();

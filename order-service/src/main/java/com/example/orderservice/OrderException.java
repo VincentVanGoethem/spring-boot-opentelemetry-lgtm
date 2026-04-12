@@ -10,9 +10,9 @@ class OrderException extends RuntimeException {
         super(message);
     }
 
-    static class MagicBoxQuantityExceededException extends OrderException {
-        MagicBoxQuantityExceededException() {
-            super("Magic box quantity must not exceed 1");
+    static class MysteryBoxQuantityExceededException extends OrderException {
+        MysteryBoxQuantityExceededException() {
+            super("Mystery box quantity must not exceed 1");
         }
     }
 
