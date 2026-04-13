@@ -9,10 +9,11 @@ services:
   lgtm:
     image: grafana/otel-lgtm:0.24.0
     ports:
-      - "3000:3000"   # Grafana UI
-      - "4317:4317"   # OTLP gRPC
-      - "4318:4318"   # OTLP HTTP
-      - "3200:3200"
+      - "3000:3000" # Grafana UI
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+      - "3200:3200" # Tempo
+      - "9090:9090" # Prometheus
     volumes:
       - ./grafana/custom-dashboard.json:/otel-lgtm/grafana/conf/provisioning/dashboards/custom/custom-custom-dashboard.json:ro
       - ./grafana/dashboards-provisioning.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/custom.yaml:ro
@@ -22,7 +23,8 @@ services:
 
   mcp-grafana:
     image: grafana/mcp-grafana:latest
-    command: ["--transport", "streamable-http", "--address", "0.0.0.0:8888", "--debug"]
+    command:
+      ["--transport", "streamable-http", "--address", "0.0.0.0:8888", "--debug"]
     ports:
       - "8888:8888"
     environment:
