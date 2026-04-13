@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -12,334 +15,1347 @@
       }
     ]
   },
-  "description": "Spring Boot 4 + OpenTelemetry demo — Logs, Metrics, Traces & Profiling across the Arcane Emporium services",
+  "description": "Deep-dive business analytics for the Arcane Emporium: SKU breakdown, order value distribution, error analysis, mystery box insights, and service latency comparison.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "links": [],
   "panels": [
-
-    { "collapsed": false, "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }, "id": 1, "title": "Business Overview", "type": "row" },
-
     {
-      "id": 2, "type": "stat", "title": "Orders (1 h)",
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
-      "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "targets": [{ "expr": "increase(orders_created_total{status='success'}[1h])", "refId": "A", "legendFormat": "" }],
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "area", "justifyMode": "center", "orientation": "auto", "textMode": "auto" },
-      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "green" }, "unit": "short", "noValue": "0" }, "overrides": [] }
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "panels": [],
+      "title": "KPI Overview",
+      "type": "row"
     },
     {
-      "id": 3, "type": "stat", "title": "Revenue (1 h)",
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
-      "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "targets": [{ "expr": "increase(orders_value_sum[1h])", "refId": "A", "legendFormat": "" }],
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "area", "justifyMode": "center" },
-      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "gold" }, "unit": "currencyUSD", "decimals": 2, "noValue": "$0.00" }, "overrides": [] }
-    },
-    {
-      "id": 4, "type": "stat", "title": "Order Success Rate",
-      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
-      "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "targets": [{ "expr": "sum(rate(orders_created_total{status='success'}[$__rate_interval])) / sum(rate(orders_created_total[$__rate_interval])) * 100", "refId": "A", "legendFormat": "" }],
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "none", "justifyMode": "center" },
-      "fieldConfig": { "defaults": { "unit": "percent", "decimals": 1, "noValue": "—", "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "yellow", "value": 90 }, { "color": "green", "value": 99 }] }, "color": { "mode": "thresholds" } }, "overrides": [] }
-    },
-    {
-      "id": 5, "type": "stat", "title": "Mystery Boxes (1 h)",
-      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
-      "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "targets": [{ "expr": "increase(orders_items_ordered_total{sku='MYSTERY_BOX'}[1h])", "refId": "A", "legendFormat": "" }],
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "area", "justifyMode": "center" },
-      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "purple" }, "unit": "short", "noValue": "0" }, "overrides": [] }
-    },
-
-    { "collapsed": false, "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 }, "id": 6, "title": "HTTP Traffic", "type": "row" },
-
-    {
-      "id": 7, "type": "timeseries", "title": "Request Rate",
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 6 },
-      "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "targets": [
-        { "expr": "sum by (service_name) (rate(http_server_request_duration_ms_count[$__rate_interval]))", "refId": "A", "legendFormat": "{{service_name}}" }
-      ],
-      "options": { "tooltip": { "mode": "multi", "sort": "desc" }, "legend": { "displayMode": "list", "placement": "bottom" } },
-      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineInterpolation": "smooth", "fillOpacity": 10 } }, "overrides": [] }
-    },
-    {
-      "id": 8, "type": "timeseries", "title": "HTTP Error Rate",
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 6 },
-      "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "targets": [
-        {
-          "expr": "sum by (service_name) (rate(http_server_request_duration_ms_count{http_response_status_code=~'5..'}[$__rate_interval])) / sum by (service_name) (rate(http_server_request_duration_ms_count[$__rate_interval])) * 100",
-          "refId": "A", "legendFormat": "{{service_name}}"
-        }
-      ],
-      "options": { "tooltip": { "mode": "multi", "sort": "desc" }, "legend": { "displayMode": "list", "placement": "bottom" } },
-      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100, "custom": { "lineInterpolation": "smooth", "fillOpacity": 15 }, "color": { "fixedColor": "red", "mode": "fixed" } }, "overrides": [] }
-    },
-    {
-      "id": 9, "type": "timeseries", "title": "Request Latency (order-service)",
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 6 },
-      "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "targets": [
-        { "expr": "histogram_quantile(0.50, sum by (le) (rate(http_server_request_duration_ms_bucket{service_name='order-service'}[$__rate_interval])))", "refId": "A", "legendFormat": "P50" },
-        { "expr": "histogram_quantile(0.90, sum by (le) (rate(http_server_request_duration_ms_bucket{service_name='order-service'}[$__rate_interval])))", "refId": "B", "legendFormat": "P90" },
-        { "expr": "histogram_quantile(0.99, sum by (le) (rate(http_server_request_duration_ms_bucket{service_name='order-service'}[$__rate_interval])))", "refId": "C", "legendFormat": "P99" }
-      ],
-      "options": { "tooltip": { "mode": "multi", "sort": "desc" }, "legend": { "displayMode": "list", "placement": "bottom" } },
-      "fieldConfig": { "defaults": { "unit": "ms", "custom": { "lineInterpolation": "smooth", "fillOpacity": 5 } }, "overrides": [] }
-    },
-
-    { "collapsed": false, "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 }, "id": 10, "title": "Business Trends", "type": "row" },
-
-    {
-      "id": 11, "type": "timeseries", "title": "Orders per Minute",
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 15 },
-      "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "targets": [
-        { "expr": "sum by (status) (rate(orders_created_total[$__rate_interval])) * 60", "refId": "A", "legendFormat": "{{status}}" }
-      ],
-      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "fieldConfig": {
-        "defaults": { "unit": "short", "custom": { "lineInterpolation": "smooth", "fillOpacity": 15 } },
-        "overrides": [
-          { "matcher": { "id": "byName", "options": "error" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "success" }, "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] }
-        ]
-      }
-    },
-    {
-      "id": 12, "type": "timeseries", "title": "Revenue per Minute",
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 15 },
-      "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "targets": [
-        { "expr": "rate(orders_value_sum[$__rate_interval]) * 60", "refId": "A", "legendFormat": "USD / min" }
-      ],
-      "options": { "tooltip": { "mode": "single" }, "legend": { "displayMode": "list", "placement": "bottom" } },
-      "fieldConfig": { "defaults": { "unit": "currencyUSD", "decimals": 2, "custom": { "lineInterpolation": "smooth", "fillOpacity": 20 }, "color": { "fixedColor": "gold", "mode": "fixed" } }, "overrides": [] }
-    },
-    {
-      "id": 13, "type": "timeseries", "title": "Items Ordered by SKU",
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 15 },
-      "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "targets": [
-        { "expr": "sum by (sku) (rate(orders_items_ordered_total[$__rate_interval])) * 60", "refId": "A", "legendFormat": "{{sku}}" }
-      ],
-      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
-      "fieldConfig": { "defaults": { "unit": "short", "custom": { "lineInterpolation": "smooth", "fillOpacity": 10, "stacking": { "mode": "normal", "group": "A" } } }, "overrides": [] }
-    },
-
-    { "collapsed": false, "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 }, "id": 14, "title": "Order Service — JVM", "type": "row" },
-
-    {
-      "id": 15, "type": "timeseries", "title": "Heap Memory",
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 24 },
-      "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "targets": [
-        { "expr": "sum by (jvm_memory_pool_name) (jvm_memory_used_bytes{service_name='order-service', jvm_memory_type='heap'})", "refId": "A", "legendFormat": "Used · {{jvm_memory_pool_name}}" },
-        { "expr": "sum(jvm_memory_limit_bytes{service_name='order-service', jvm_memory_type='heap'})", "refId": "B", "legendFormat": "Max" }
-      ],
-      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
-      "fieldConfig": {
-        "defaults": { "unit": "bytes", "custom": { "lineInterpolation": "smooth", "fillOpacity": 10 } },
-        "overrides": [
-          { "matcher": { "id": "byName", "options": "Max" }, "properties": [{ "id": "custom.lineStyle", "value": { "fill": "dash" } }, { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }
-        ]
-      }
-    },
-    {
-      "id": 16, "type": "timeseries", "title": "CPU Utilization",
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 24 },
-      "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "targets": [
-        { "expr": "jvm_cpu_recent_utilization{service_name='order-service'} * 100", "refId": "A", "legendFormat": "JVM CPU" },
-        { "expr": "system_cpu_utilization{service_name='order-service'} * 100", "refId": "B", "legendFormat": "System CPU" }
-      ],
-      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
-      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100, "custom": { "lineInterpolation": "smooth", "fillOpacity": 15 } }, "overrides": [] }
-    },
-    {
-      "id": 17, "type": "timeseries", "title": "Threads & Classes",
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 24 },
-      "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "targets": [
-        { "expr": "jvm_thread_count{service_name='order-service'}", "refId": "A", "legendFormat": "Threads" },
-        { "expr": "jvm_class_count{service_name='order-service'}", "refId": "B", "legendFormat": "Loaded Classes" }
-      ],
-      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
-      "fieldConfig": {
-        "defaults": { "unit": "short", "custom": { "lineInterpolation": "smooth" } },
-        "overrides": [
-          { "matcher": { "id": "byName", "options": "Loaded Classes" }, "properties": [{ "id": "custom.axisPlacement", "value": "right" }] }
-        ]
-      }
-    },
-
-    { "collapsed": false, "gridPos": { "h": 1, "w": 24, "x": 0, "y": 32 }, "id": 18, "title": "Service Method Observations (@Observed)", "type": "row" },
-
-    {
-      "id": 19, "type": "timeseries", "title": "Order Service — Method Duration",
-      "description": "Spans produced by @Observed(name = \"order.service\") on OrderService",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 33 },
-      "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "targets": [
-        { "expr": "histogram_quantile(0.50, sum by (le, method) (rate(order_service_seconds_bucket[$__rate_interval])))", "refId": "A", "legendFormat": "P50 {{method}}" },
-        { "expr": "histogram_quantile(0.99, sum by (le, method) (rate(order_service_seconds_bucket[$__rate_interval])))", "refId": "B", "legendFormat": "P99 {{method}}" }
-      ],
-      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
-      "fieldConfig": { "defaults": { "unit": "s", "custom": { "lineInterpolation": "smooth", "fillOpacity": 5 } }, "overrides": [] }
-    },
-    {
-      "id": 20, "type": "timeseries", "title": "Mystery Box Service — Method Duration",
-      "description": "Spans produced by @Observed(name = \"mystery.box.service\") on MysteryBoxService",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 33 },
-      "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "targets": [
-        { "expr": "histogram_quantile(0.50, sum by (le, method) (rate(mystery_box_service_seconds_bucket[$__rate_interval])))", "refId": "A", "legendFormat": "P50 {{method}}" },
-        { "expr": "histogram_quantile(0.99, sum by (le, method) (rate(mystery_box_service_seconds_bucket[$__rate_interval])))", "refId": "B", "legendFormat": "P99 {{method}}" }
-      ],
-      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
-      "fieldConfig": { "defaults": { "unit": "s", "custom": { "lineInterpolation": "smooth", "fillOpacity": 5 } }, "overrides": [] }
-    },
-
-    { "collapsed": false, "gridPos": { "h": 1, "w": 24, "x": 0, "y": 41 }, "id": 21, "title": "Mystery Box Service & Spring AI", "type": "row" },
-
-    {
-      "id": 22, "type": "stat", "title": "Boxes Generated (1 h)",
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 42 },
-      "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "targets": [{ "expr": "increase(mystery_boxes_generated_total{status='success'}[1h])", "refId": "A" }],
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "area" },
-      "fieldConfig": { "defaults": { "color": { "fixedColor": "purple", "mode": "fixed" }, "unit": "short", "noValue": "0" }, "overrides": [] }
-    },
-    {
-      "id": 23, "type": "stat", "title": "Avg Items per Box",
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 42 },
-      "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "targets": [{ "expr": "increase(mystery_box_items_count_sum[1h]) / increase(mystery_box_items_count_count[1h])", "refId": "A" }],
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value", "graphMode": "none" },
-      "fieldConfig": { "defaults": { "unit": "short", "decimals": 1, "noValue": "—" }, "overrides": [] }
-    },
-    {
-      "id": 24, "type": "timeseries", "title": "AI Operation Duration (Spring AI gen_ai observations)",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 42 },
-      "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "targets": [
-        { "expr": "histogram_quantile(0.50, sum by (le) (rate(gen_ai_client_operation_duration_ms_bucket{service_name='mystery-box-service'}[$__rate_interval])))", "refId": "A", "legendFormat": "P50" },
-        { "expr": "histogram_quantile(0.99, sum by (le) (rate(gen_ai_client_operation_duration_ms_bucket{service_name='mystery-box-service'}[$__rate_interval])))", "refId": "B", "legendFormat": "P99" }
-      ],
-      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
-      "fieldConfig": { "defaults": { "unit": "ms", "custom": { "lineInterpolation": "smooth", "fillOpacity": 10 } }, "overrides": [] }
-    },
-    {
-      "id": 25, "type": "timeseries", "title": "Mystery Box Generation Rate",
-      "gridPos": { "h": 4, "w": 12, "x": 0, "y": 46 },
-      "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "targets": [
-        { "expr": "sum by (status) (rate(mystery_boxes_generated_total[$__rate_interval])) * 60", "refId": "A", "legendFormat": "{{status}}" }
-      ],
-      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
-      "fieldConfig": {
-        "defaults": { "unit": "short", "custom": { "lineInterpolation": "smooth", "fillOpacity": 15 } },
-        "overrides": [
-          { "matcher": { "id": "byName", "options": "success" }, "properties": [{ "id": "color", "value": { "fixedColor": "purple", "mode": "fixed" } }] }
-        ]
-      }
-    },
-    {
-      "id": 26, "type": "timeseries", "title": "AI Token Usage",
-      "description": "Token usage from Spring AI gen_ai semantic convention observations",
-      "gridPos": { "h": 4, "w": 12, "x": 0, "y": 50 },
-      "datasource": { "type": "prometheus", "uid": "${datasource}" },
-      "targets": [
-        { "expr": "sum by (gen_ai_token_type) (rate(gen_ai_client_token_usage_total{service_name='mystery-box-service'}[$__rate_interval]))", "refId": "A", "legendFormat": "{{gen_ai_token_type}}" }
-      ],
-      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
-      "fieldConfig": { "defaults": { "unit": "short", "custom": { "lineInterpolation": "smooth", "fillOpacity": 5 } }, "overrides": [] }
-    },
-
-    { "collapsed": false, "gridPos": { "h": 1, "w": 24, "x": 0, "y": 54 }, "id": 27, "title": "Logs (Loki)", "type": "row" },
-
-    {
-      "id": 28, "type": "timeseries", "title": "Log Rate by Level",
-      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 55 },
-      "datasource": { "type": "loki", "uid": "${loki_datasource}" },
-      "targets": [
-        { "expr": "sum by (detected_level) (rate({service_name=~\"order-service|mystery-box-service\"}[$__rate_interval]))", "refId": "A", "legendFormat": "{{detected_level}}", "queryType": "range" }
-      ],
-      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
-      "fieldConfig": {
-        "defaults": { "unit": "short", "custom": { "lineInterpolation": "smooth", "fillOpacity": 20 } },
-        "overrides": [
-          { "matcher": { "id": "byName", "options": "error" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "warn" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "info" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }] }
-        ]
-      }
-    },
-    {
-      "id": 29, "type": "logs", "title": "Error Logs",
-      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 55 },
-      "datasource": { "type": "loki", "uid": "${loki_datasource}" },
-      "targets": [
-        { "expr": "{service_name=~\"order-service|mystery-box-service\"} | detected_level = `error`", "refId": "A", "queryType": "range" }
-      ],
-      "options": { "dedupStrategy": "none", "enableLogDetails": true, "showTime": true, "showLabels": false, "sortOrder": "Descending", "wrapLogMessage": true }
-    },
-    {
-      "id": 30, "type": "logs", "title": "All Logs",
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 61 },
-      "datasource": { "type": "loki", "uid": "${loki_datasource}" },
-      "targets": [
-        { "expr": "{service_name=~\"order-service|mystery-box-service\"}", "refId": "A", "queryType": "range" }
-      ],
-      "options": { "dedupStrategy": "none", "enableLogDetails": true, "showTime": true, "showLabels": true, "sortOrder": "Descending", "wrapLogMessage": false }
-    },
-
-    { "collapsed": false, "gridPos": { "h": 1, "w": 24, "x": 0, "y": 71 }, "id": 31, "title": "Distributed Traces (Tempo)", "type": "row" },
-
-    {
-      "id": 32, "type": "traces", "title": "Recent Traces",
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 72 },
-      "datasource": { "type": "tempo", "uid": "${tempo_datasource}" },
-      "targets": [
-        {
-          "queryType": "traceqlSearch",
-          "filters": [
-            { "id": "service-name", "operator": "=", "scope": "resource", "tag": "service.name", "value": ["order-service", "mystery-box-service"], "valueType": "string" }
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 1
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
           ],
-          "refId": "A",
-          "limit": 20
-        }
-      ],
-      "options": {}
-    },
-    {
-      "id": 33, "type": "nodeGraph", "title": "Service Map",
-      "description": "Distributed trace service topology — shows call graph between order-service and mystery-box-service",
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 82 },
-      "datasource": { "type": "tempo", "uid": "${tempo_datasource}" },
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.2",
       "targets": [
         {
-          "queryType": "serviceMap",
-          "refId": "A",
-          "serviceMapQuery": "{}"
+          "expr": "sum(orders_created_total{status='success'})",
+          "legendFormat": "",
+          "refId": "A"
         }
       ],
-      "options": {}
+      "title": "Total Orders",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "gold",
+            "mode": "fixed"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "noValue": "$0.00",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 1
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.2",
+      "targets": [
+        {
+          "expr": "sum(orders_value_sum)",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Revenue",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 2,
+          "mappings": [],
+          "noValue": "—",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 1
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.2",
+      "targets": [
+        {
+          "expr": "sum(orders_value_sum) / sum(orders_value_count)",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Avg Order Value",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "noValue": "0%",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 1
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.2",
+      "targets": [
+        {
+          "expr": "sum(rate(orders_created_total{status='error'}[$__rate_interval])) / sum(rate(orders_created_total[$__rate_interval])) * 100",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Order Error Rate",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "purple",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 1
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.2",
+      "targets": [
+        {
+          "expr": "sum(mystery_box_generated_count_total{status='success'})",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Mystery Boxes Generated",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 1,
+          "mappings": [],
+          "noValue": "—",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 1
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.2",
+      "targets": [
+        {
+          "expr": "sum(mystery_box_items_count_sum) / sum(mystery_box_items_count_count)",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Avg Items per Box",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "id": 10,
+      "panels": [],
+      "title": "SKU Analytics",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [],
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 0,
+        "y": 6
+      },
+      "id": 11,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "percent",
+            "value"
+          ]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "sort": "desc",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.2",
+      "targets": [
+        {
+          "expr": "sum by (sku) (orders_items_ordered_total)",
+          "instant": true,
+          "legendFormat": "{{sku}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Items Ordered by SKU (Total Share)",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 16,
+        "x": 8,
+        "y": 6
+      },
+      "id": 12,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.4.2",
+      "targets": [
+        {
+          "expr": "sum by (sku) (rate(orders_items_ordered_total[$__rate_interval])) * 60",
+          "legendFormat": "{{sku}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Items Ordered by SKU (Rate per Minute)",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
+      "id": 20,
+      "panels": [],
+      "title": "Order Value Analysis",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "P50 / P90 / P99 distribution of individual order values",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 5,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 21,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.2",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(orders_value_bucket[$__rate_interval])))",
+          "legendFormat": "P50",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.90, sum by (le) (rate(orders_value_bucket[$__rate_interval])))",
+          "legendFormat": "P90",
+          "refId": "B"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(orders_value_bucket[$__rate_interval])))",
+          "legendFormat": "P99",
+          "refId": "C"
+        }
+      ],
+      "title": "Order Value Percentiles",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "gold",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "id": 22,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.2",
+      "targets": [
+        {
+          "expr": "rate(orders_value_sum[$__rate_interval]) * 60",
+          "legendFormat": "USD / min",
+          "refId": "A"
+        }
+      ],
+      "title": "Revenue Rate (USD / min)",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      },
+      "id": 30,
+      "panels": [],
+      "title": "Error Analysis",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "Breakdown of order creation failures by exception class",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 20,
+            "lineInterpolation": "smooth"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 26
+      },
+      "id": 31,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (reason) (rate(orders_created_total{status='error'}[$__rate_interval])) * 60",
+          "legendFormat": "{{reason}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Order Errors by Reason (per Minute)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineInterpolation": "smooth"
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "error"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "success"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 26
+      },
+      "id": 32,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (status) (rate(orders_created_total[$__rate_interval])) * 60",
+          "legendFormat": "{{status}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Order Success vs Error Rate (per Minute)",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 35
+      },
+      "id": 40,
+      "panels": [],
+      "title": "Mystery Box Deep Dive",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "Distribution of how many items are included in each generated mystery box",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 5,
+            "lineInterpolation": "smooth"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 0,
+        "y": 36
+      },
+      "id": 41,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(mystery_box_items_count_bucket[$__rate_interval])))",
+          "legendFormat": "P50",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.90, sum by (le) (rate(mystery_box_items_count_bucket[$__rate_interval])))",
+          "legendFormat": "P90",
+          "refId": "B"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(mystery_box_items_count_bucket[$__rate_interval])))",
+          "legendFormat": "P99",
+          "refId": "C"
+        }
+      ],
+      "title": "Items per Box — Percentiles",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 5,
+            "lineInterpolation": "smooth"
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 8,
+        "y": 36
+      },
+      "id": 42,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(mystery_box_generate_milliseconds_bucket[$__rate_interval])))",
+          "legendFormat": "P50",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(mystery_box_generate_milliseconds_bucket[$__rate_interval])))",
+          "legendFormat": "P99",
+          "refId": "B"
+        }
+      ],
+      "title": "Mystery Box Generation Duration (P50 / P99)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineInterpolation": "smooth"
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "success"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "error"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 16,
+        "y": 36
+      },
+      "id": 43,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (status) (rate(mystery_box_generated_count_total[$__rate_interval])) * 60",
+          "legendFormat": "{{status}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Mystery Box Generation Rate (per Minute)",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 45
+      },
+      "id": 50,
+      "panels": [],
+      "title": "Service Latency Comparison",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 5,
+            "lineInterpolation": "smooth"
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 46
+      },
+      "id": 51,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(http_server_request_duration_milliseconds_bucket{service_name='order-service'}[$__rate_interval])))",
+          "legendFormat": "P50",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.90, sum by (le) (rate(http_server_request_duration_milliseconds_bucket{service_name='order-service'}[$__rate_interval])))",
+          "legendFormat": "P90",
+          "refId": "B"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(http_server_request_duration_milliseconds_bucket{service_name='order-service'}[$__rate_interval])))",
+          "legendFormat": "P99",
+          "refId": "C"
+        }
+      ],
+      "title": "Order Service — HTTP Request Latency",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 5,
+            "lineInterpolation": "smooth"
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 46
+      },
+      "id": 52,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(http_server_request_duration_milliseconds_bucket{service_name='mystery-box-service'}[$__rate_interval])))",
+          "legendFormat": "P50",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.90, sum by (le) (rate(http_server_request_duration_milliseconds_bucket{service_name='mystery-box-service'}[$__rate_interval])))",
+          "legendFormat": "P90",
+          "refId": "B"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(http_server_request_duration_milliseconds_bucket{service_name='mystery-box-service'}[$__rate_interval])))",
+          "legendFormat": "P99",
+          "refId": "C"
+        }
+      ],
+      "title": "Mystery Box Service — HTTP Request Latency",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 55
+      },
+      "id": 60,
+      "panels": [],
+      "title": "Active Requests",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "Number of HTTP requests currently being processed across services",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 20,
+            "lineInterpolation": "smooth"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 56
+      },
+      "id": 61,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (service_name) (http_server_request_duration_active_milliseconds_count)",
+          "legendFormat": "{{service_name}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Active Requests In-Flight (by Service)",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 65
+      },
+      "id": 70,
+      "panels": [],
+      "title": "Error Logs",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki_datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 66
+      },
+      "id": 71,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "maxDataPoints": 500,
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "expr": "{service_name=~\"order-service|mystery-box-service\"} | detected_level = `error`",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Error Logs — Both Services",
+      "type": "logs"
     }
-
   ],
-  "refresh": "10s",
-  "schemaVersion": 39,
-  "tags": ["spring-boot", "opentelemetry", "demo"],
+  "preload": false,
+  "refresh": "30s",
+  "schemaVersion": 42,
+  "tags": [
+    "spring-boot",
+    "opentelemetry",
+    "demo",
+    "business"
+  ],
   "templating": {
     "list": [
       {
-        "current": {},
-        "hide": 0,
+        "current": {
+          "text": "Prometheus",
+          "value": "prometheus"
+        },
         "includeAll": false,
         "label": "Prometheus",
         "name": "datasource",
@@ -349,8 +1365,10 @@
         "type": "datasource"
       },
       {
-        "current": {},
-        "hide": 0,
+        "current": {
+          "text": "Loki",
+          "value": "loki"
+        },
         "includeAll": false,
         "label": "Loki",
         "name": "loki_datasource",
@@ -358,25 +1376,17 @@
         "query": "loki",
         "refresh": 1,
         "type": "datasource"
-      },
-      {
-        "current": {},
-        "hide": 0,
-        "includeAll": false,
-        "label": "Tempo",
-        "name": "tempo_datasource",
-        "options": [],
-        "query": "tempo",
-        "refresh": 1,
-        "type": "datasource"
       }
     ]
   },
-  "time": { "from": "now-1h", "to": "now" },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Arcane Emporium — OpenTelemetry",
-  "uid": "arcane-emporium-otel",
-  "version": 1,
+  "title": "Arcane Emporium — Business Intelligence",
+  "uid": "arcane-emporium-bi",
+  "version": 2,
   "weekStart": ""
 }

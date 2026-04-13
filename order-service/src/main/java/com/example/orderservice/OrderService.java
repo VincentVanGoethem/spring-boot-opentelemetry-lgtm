@@ -1,5 +1,7 @@
 package com.example.orderservice;
 
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import io.micrometer.observation.annotation.Observed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,9 +35,11 @@ class OrderService {
         log.info("Creating order with {} line(s)", lines.size());
         lines.forEach(l -> l.validate(products));
 
-        var order = orderRepository.save(new Order(getOrderItems(lines)));
+        var orderItems = getOrderItems(lines);
+        var order = orderRepository.save(new Order(orderItems));
         log.info("Order {} created", order.id());
-        log.debug("Order {} created: {}", order.id(), order);
+        log.debug("Order details: {}", order);
+
         return order;
     }
 
@@ -52,6 +56,8 @@ class OrderService {
         ).toList();
     }
 
+    @Timed
+    @Counted
     private MysteryBox createMysteryBox() {
         log.info("Requesting mystery box from mystery-box-service");
         var box = mysteryBoxClient.post()
@@ -59,7 +65,7 @@ class OrderService {
                 .retrieve()
                 .body(MysteryBox.class);
         log.info("Mystery box {} received with {} item(s)", box.id(), box.contents().size());
-        log.debug("Mystery box {} received: {}", box.id(), box);
+        log.debug("Mystery box details: {}", box);
         return box;
     }
 }

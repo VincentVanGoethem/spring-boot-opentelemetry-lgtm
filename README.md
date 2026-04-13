@@ -97,12 +97,13 @@ Open **Explore → Loki** and filter by `service_name`. Both services ship struc
 
 ## Load generation
 
-[`load-test.js`](./load-test.js) is a [k6](https://github.com/grafana/k6) script that drives realistic traffic through both services:
+[`load-test.js`](./load-test.js) is a [k6](https://github.com/grafana/k6) script that drives realistic traffic through the order-service:
 
 - Places random orders with 1–3 regular items (Rubber Duck, Forever Pen, Alarm Clock, Umbrella)
-- Includes a Mystery Box in ~20 % of orders to exercise the Spring AI path
 - Occasionally lists all orders to mix read and write traffic
 - Ramps from 5 → 20 virtual users, holds a spike, then ramps back down
+
+Mystery Box orders are **opt-in** (they consume OpenAI tokens). Use `MYSTERY_BOX_REQUESTS` to control how many are sent. Each request fires two calls: a valid order (`quantity: 1`) and an invalid one (`quantity: 2`) to exercise the error path.
 
 **Run with Docker (no install needed)**
 
@@ -120,6 +121,20 @@ k6 run load-test.js
 
 ```bash
 k6 run -e BASE_URL=http://my-host:8080 load-test.js
+```
+
+**Run for a fixed duration (flat load, 5 VUs) instead of the full staged scenario**
+
+```bash
+k6 run -e DURATION=1m load-test.js
+```
+
+Accepts any k6 duration string: `30s`, `2m`, `1h`, etc.
+
+**Include Mystery Box requests**
+
+```bash
+k6 run -e MYSTERY_BOX_REQUESTS=5 load-test.js
 ```
 
 ---
