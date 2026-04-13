@@ -22,10 +22,29 @@ Both services emit **traces**, **metrics**, and **logs** via OTLP to the collect
 
 ## Running the demo
 
+### Option A — fully containerised
+
+Build images for both services with Spring Boot's built-in [Paketo Buildpack](https://paketo.io) support (no Dockerfile needed):
+
+```bash
+./build-images.sh
+```
+
+Then start everything:
+
+```bash
+export OPENAI_API_KEY=<your-key>
+docker compose up -d
+```
+
+All five containers (postgres, lgtm, mcp-grafana, mystery-box-service, order-service) start together. The shop is available at [http://localhost:8080](http://localhost:8080).
+
+### Option B — run services locally
+
 ### 1. Start the infrastructure
 
 ```bash
-docker compose up -d
+docker compose up -d postgres lgtm mcp-grafana
 ```
 
 This starts:
@@ -73,6 +92,35 @@ The custom home dashboard shows business metrics emitted via Micrometer:
 
 ### Logs
 Open **Explore → Loki** and filter by `service_name`. Both services ship structured logs via the OpenTelemetry Logback appender, so logs are automatically correlated with their traces.
+
+---
+
+## Load generation
+
+[`load-test.js`](./load-test.js) is a [k6](https://github.com/grafana/k6) script that drives realistic traffic through both services:
+
+- Places random orders with 1–3 regular items (Rubber Duck, Forever Pen, Alarm Clock, Umbrella)
+- Includes a Mystery Box in ~20 % of orders to exercise the Spring AI path
+- Occasionally lists all orders to mix read and write traffic
+- Ramps from 5 → 20 virtual users, holds a spike, then ramps back down
+
+**Run with Docker (no install needed)**
+
+```bash
+docker run --rm -i --network host grafana/k6 run - < load-test.js
+```
+
+**Run with a local k6 install**
+
+```bash
+k6 run load-test.js
+```
+
+**Point at a non-default host**
+
+```bash
+k6 run -e BASE_URL=http://my-host:8080 load-test.js
+```
 
 ---
 
