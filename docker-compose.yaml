@@ -7,17 +7,7 @@ services:
       - "5432:5432"
 
   lgtm:
-    image: grafana/otel-lgtm:latest
-    command:
-      - sh
-      - -c
-      - |
-        echo '' >> /otel-lgtm/tempo-config.yaml
-        echo 'query_frontend:' >> /otel-lgtm/tempo-config.yaml
-        echo '  mcp_server:' >> /otel-lgtm/tempo-config.yaml
-        echo '    enabled: true' >> /otel-lgtm/tempo-config.yaml
-        cat /otel-lgtm/tempo-config.yaml
-        exec /otel-lgtm/run-all.sh
+    image: grafana/otel-lgtm:0.24.0
     ports:
       - "3000:3000"   # Grafana UI
       - "4317:4317"   # OTLP gRPC
