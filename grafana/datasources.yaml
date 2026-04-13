@@ -45,13 +45,22 @@ datasources:
       tracesToLogsV2:
         datasourceUid: loki
         customQuery: true
-        query: "{${__tags}} | trace_id = \"${__trace.traceId}\""
+        query: '{$${__tags}} | trace_id = "$${__trace.traceId}"'
         tags:
           - key: service.name
             value: service_name
       tracesToMetrics:
         datasourceUid: prometheus
-        tags: []
+        spanStartTimeShift: "-1h"
+        spanEndTimeShift: "1h"
+        tags:
+          - key: service.name
+            value: service_name
+          - key: sku
+            value: sku
+        queries:
+          - name: Total items ordered(by SKU)
+            query: "orders_items_ordered_total{$$__tags}"
       tracesToProfiles:
         datasourceUid: pyroscope
         profileTypeId: process_cpu:cpu:nanoseconds:cpu:nanoseconds
