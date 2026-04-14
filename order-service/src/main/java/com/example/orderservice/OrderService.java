@@ -10,32 +10,31 @@ import org.springframework.web.client.RestClient;
 
 import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
-import io.micrometer.observation.annotation.Observed;
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
 import io.opentelemetry.api.OpenTelemetry;
-import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.Tracer;
-import io.opentelemetry.context.Context;
 
-@Observed(name = "order.service")
+// @Observed(name = "order.service")
 @Service
 class OrderService {
 
     private static final Logger log = LoggerFactory.getLogger(OrderService.class);
 
+    private final ObservationRegistry observationRegistry;
     private final OrderRepository orderRepository;
     private final RestClient mysteryBoxClient;
     private final List<Product> products;
     private final Tracer tracer;
 
-    OrderService(OrderRepository orderRepository, RestClient.Builder restClientBuilder,
-            OrderProperties orderProperties, OpenTelemetry openTelemetry) {
+    OrderService(OrderRepository orderRepository, RestClient.Builder restClientBuilder, OrderProperties orderProperties, OpenTelemetry openTelemetry, io.micrometer.observation.ObservationRegistry observationRegistry) {
         this.orderRepository = orderRepository;
         this.mysteryBoxClient = restClientBuilder
                 .baseUrl(orderProperties.mysteryBoxApiUrl())
                 .apiVersionInserter(usePathSegment(1)).build();
         this.products = orderProperties.products();
         this.tracer = openTelemetry.getTracer(OrderService.class.getName());
+        this.observationRegistry = observationRegistry;
     }
 
     Order createOrder(List<Order.OrderLine> lines) {
@@ -45,20 +44,27 @@ class OrderService {
         var orderItems = getOrderItems(lines);
         var order = orderRepository.save(new Order(orderItems));
 
-        // Add spans for each order item
-        for (var item : order.items()) {
-            Span lineSpan = tracer.spanBuilder("order.line")
-                    .setParent(Context.current())
-                    .setSpanKind(SpanKind.INTERNAL)
-                    .startSpan();
-            lineSpan.setAttribute("sku", item.sku());
-            lineSpan.setAttribute("quantity", item.quantity());
-            lineSpan.end();
-        }
+        // Create observation, everything in observe is for timing
+        Observation.createNotStarted("order.service", observationRegistry).observe(() -> {
+            for (var item : order.items()) {
+                processItem(item);
+            }
+        });
+
         log.info("Order {} created", order.id());
         log.debug("Order details: {}", order);
 
         return order;
+    }
+
+    void processItem(Order.OrderItem item) {
+
+        Observation.createNotStarted("order.item.process", observationRegistry)
+                .highCardinalityKeyValue("sku", item.sku())
+                .highCardinalityKeyValue("quantity", item.quantity() + "")
+                .observe(() -> {
+                    log.info("Processing item {}", item.sku());
+                });
     }
 
     List<Order> getOrders() {
