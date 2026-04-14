@@ -16,6 +16,7 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
 
 @Observed(name = "order.service")
 @Service
@@ -45,15 +46,24 @@ class OrderService {
         var orderItems = getOrderItems(lines);
         var order = orderRepository.save(new Order(orderItems));
 
-        // Add spans for each order item
-        for (var item : order.items()) {
-            Span lineSpan = tracer.spanBuilder("order.line")
-                    .setParent(Context.current())
-                    .setSpanKind(SpanKind.INTERNAL)
-                    .startSpan();
-            lineSpan.setAttribute("sku", item.sku());
-            lineSpan.setAttribute("quantity", item.quantity());
-            lineSpan.end();
+        Span orderSpan = tracer.spanBuilder("order")
+                .setParent(Context.current())
+                .setSpanKind(SpanKind.INTERNAL)
+                .startSpan();
+        orderSpan.setAttribute("order.id", order.id());
+        orderSpan.setAttribute("order.items.quantity", order.items().size());
+        orderSpan.end();
+
+        try (Scope scope = orderSpan.makeCurrent()) {
+            // Add spans for each order item
+            for (var item : order.items()) {
+                Span orderItemSpan = tracer.spanBuilder("order.item")
+                        .setSpanKind(SpanKind.INTERNAL)
+                        .startSpan();
+                orderItemSpan.setAttribute("order.item.sku", item.sku());
+                orderItemSpan.setAttribute("order.item.quantity", item.quantity());
+                orderItemSpan.end();
+            }
         }
         log.info("Order {} created", order.id());
         log.debug("Order details: {}", order);
