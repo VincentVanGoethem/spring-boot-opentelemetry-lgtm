@@ -38,11 +38,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-opentelemetry</artifactId>
 		</dependency>
-		<dependency>
+		<!-- This currently does not work with the ebpf otel profiler, TODO look into -->
+		<!-- <dependency>
 			<groupId>net.ttddyy.observation</groupId>
 			<artifactId>datasource-micrometer-spring-boot</artifactId>
 			<version>2.2.0</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>io.opentelemetry.instrumentation</groupId>
 			<artifactId>opentelemetry-logback-appender-1.0</artifactId>
