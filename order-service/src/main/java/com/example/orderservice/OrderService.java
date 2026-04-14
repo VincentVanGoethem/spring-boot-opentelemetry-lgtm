@@ -1,16 +1,21 @@
 package com.example.orderservice;
 
-import io.micrometer.core.annotation.Counted;
-import io.micrometer.core.annotation.Timed;
-import io.micrometer.observation.annotation.Observed;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import static org.springframework.web.client.ApiVersionInserter.usePathSegment;
 import org.springframework.web.client.RestClient;
 
-import java.util.List;
-
-import static org.springframework.web.client.ApiVersionInserter.usePathSegment;
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
+import io.micrometer.observation.annotation.Observed;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Context;
 
 @Observed(name = "order.service")
 @Service
@@ -21,14 +26,16 @@ class OrderService {
     private final OrderRepository orderRepository;
     private final RestClient mysteryBoxClient;
     private final List<Product> products;
+    private final Tracer tracer;
 
     OrderService(OrderRepository orderRepository, RestClient.Builder restClientBuilder,
-                 OrderProperties orderProperties) {
+            OrderProperties orderProperties, OpenTelemetry openTelemetry) {
         this.orderRepository = orderRepository;
         this.mysteryBoxClient = restClientBuilder
                 .baseUrl(orderProperties.mysteryBoxApiUrl())
                 .apiVersionInserter(usePathSegment(1)).build();
         this.products = orderProperties.products();
+        this.tracer = openTelemetry.getTracer(OrderService.class.getName());
     }
 
     Order createOrder(List<Order.OrderLine> lines) {
@@ -37,6 +44,17 @@ class OrderService {
 
         var orderItems = getOrderItems(lines);
         var order = orderRepository.save(new Order(orderItems));
+
+        // Add spans for each order item
+        for (var item : order.items()) {
+            Span lineSpan = tracer.spanBuilder("order.line")
+                    .setParent(Context.current())
+                    .setSpanKind(SpanKind.INTERNAL)
+                    .startSpan();
+            lineSpan.setAttribute("sku", item.sku());
+            lineSpan.setAttribute("quantity", item.quantity());
+            lineSpan.end();
+        }
         log.info("Order {} created", order.id());
         log.debug("Order details: {}", order);
 

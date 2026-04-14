@@ -17,7 +17,7 @@ services:
     volumes:
       - ./grafana/custom-dashboard.json:/otel-lgtm/grafana/conf/provisioning/dashboards/custom/custom-custom-dashboard.json:ro
       - ./grafana/dashboards-provisioning.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/custom.yaml:ro
-      - ./grafana/datasources.yaml:/otel-lgtm/grafana/conf/provisioning/datasources/custom-datasources.yaml:ro
+      - ./grafana/datasources.yaml:/otel-lgtm/grafana/conf/provisioning/datasources/grafana-datasources.yaml:ro
     environment:
       GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /otel-lgtm/grafana/conf/provisioning/dashboards/custom/custom-custom-dashboard.json
 
