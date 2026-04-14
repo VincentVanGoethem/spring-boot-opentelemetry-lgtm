@@ -4,7 +4,7 @@ receivers:
 
 exporters:
   otlp_grpc:
-    endpoint: pyroscope:4040
+    endpoint: lgtm:4040
     tls:
       insecure: true
 
