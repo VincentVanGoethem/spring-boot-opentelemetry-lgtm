@@ -2,6 +2,8 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
+    <!-- This appender component is not stable yet
+    This sends log entries over HTTP to the OpenTelemetry collector-->
     <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
     </appender>
 
