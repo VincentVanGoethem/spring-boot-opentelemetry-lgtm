@@ -6,6 +6,22 @@ spring:
     password: ${DB_PASSWORD:password}
   sql.init.mode: always
 
+management:
+  endpoints.web.exposure.include: "*"
+  endpoint.env.show-values: ALWAYS
+  metrics:
+    tags:
+      application: ${spring.application.name} # These tag appears in all metrics → Correlation with logs/traces
+    distribution.percentiles-histogram:
+      http.server.requests: true
+      http.client.requests: true
+  tracing.sampling.probability: 1.0
+  otlp.metrics.export.step: 5s
+  observations.annotations.enabled: true
+  opentelemetry:
+    tracing.export.otlp.endpoint: http://localhost:4318/v1/traces
+    logging.export.otlp.endpoint: http://localhost:4318/v1/logs
+
 order:
   mystery-box-api-url: ${MYSTERY_BOX_SERVICE_URL:http://localhost:8081}/api
   products:
@@ -29,15 +45,3 @@ order:
       name: Umbrella That Inverts in Light Breeze
       cost: 7.49
       stock: 23
-
-management:
-  endpoints.web.exposure.include: "*"
-  endpoint.env.show-values: ALWAYS
-  tracing:
-    sampling.probability: 1.0
-    enabled: true
-  otlp.metrics.export.step: 5s
-  observations.annotations.enabled: true
-  opentelemetry:
-    tracing.export.otlp.endpoint: http://localhost:4318/v1/traces
-    logging.export.otlp.endpoint: http://localhost:4318/v1/logs

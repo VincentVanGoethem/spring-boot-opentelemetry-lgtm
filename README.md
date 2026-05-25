@@ -22,7 +22,7 @@ Both services emit **traces**, **metrics**, and **logs** via OTLP to the collect
 
 ## Running the demo
 
-### Option A — fully containerised
+### Option A — fully containerized
 
 Build images for both services with Spring Boot's built-in [Paketo Buildpack](https://paketo.io) support (no Dockerfile needed):
 

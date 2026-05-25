@@ -24,15 +24,16 @@ datasources:
         - name: trace_id
           matcherType: label
           matcherRegex: trace_id
-          url: "${__value.raw}"
+          url: "$${__value.raw}"
           datasourceUid: tempo
-          urlDisplayLabel: "Trace: ${__value.raw}"
+          urlDisplayLabel: 'View Trace'
 
   - name: Tempo
     uid: tempo
     type: tempo
     access: proxy
     url: http://127.0.0.1:3200
+    version: 1
     jsonData:
       nodeGraph:
         enabled: true
@@ -44,31 +45,26 @@ datasources:
         datasourceUid: prometheus
       tracesToLogsV2:
         datasourceUid: loki
-        customQuery: true
-        query: '{$${__tags}} | trace_id = "$${__trace.traceId}"'
-        tags:
-          - key: service.name
-            value: service_name
+        spanStartTimeShift: "-5m"
+        spanEndTimeShift: "5m"
+        filterByTraceID: true
+        filterBySpanID: false
+        customQuery: false
       tracesToMetrics:
         datasourceUid: prometheus
-        spanStartTimeShift: "-1h"
-        spanEndTimeShift: "1h"
-        tags:
-          - key: service.name
-            value: service_name
-          - key: sku
-            value: sku
+        tags: [ { key: "service.name", value: "service_name" } ]
         queries:
-          - name: Total items ordered(by SKU)
-            query: "orders_items_ordered_total{$$__tags}"
-      tracesToProfiles:
+          - name: 'Throughput'
+            query: 'sum(rate(http_server_requests_milliseconds_count{$$__tags}[$$__rate_interval]))'
+          - name: 'Latency'
+            query: 'histogram_quantile(1.00, sum(rate(http_server_requests_milliseconds_bucket{$$__tags}[$$__rate_interval])) by (le))'
+        spanStartTimeShift: '-10m'
+        spanEndTimeShift: '10m'
+      traceToProfiles:
         datasourceUid: pyroscope
         profileTypeId: process_cpu:cpu:nanoseconds:cpu:nanoseconds
         customQuery: false
-        tags:
-          - key: service.name
-            value: service_name
-
+        query: 'method="${__span.tags.method}"'
   - name: Pyroscope
     uid: pyroscope
     type: grafana-pyroscope-datasource

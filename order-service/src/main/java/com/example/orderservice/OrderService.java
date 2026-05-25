@@ -8,14 +8,16 @@ import org.springframework.stereotype.Service;
 import static org.springframework.web.client.ApiVersionInserter.usePathSegment;
 import org.springframework.web.client.RestClient;
 
-import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
+import io.micrometer.observation.annotation.Observed;
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationRegistry;
-import io.opentelemetry.api.OpenTelemetry;
-import io.opentelemetry.api.trace.Tracer;
 
-// @Observed(name = "order.service")
+// Class-level @Observed instruments every public method:
+// emits spans + timer metrics (count, latency, errors) and propagates trace context to logs & downstream calls.
+// Note: methods must be public — Spring AOP proxies only intercept public calls.
+// @Timed on private methods (e.g. createMysteryBox) is silently ignored for the same reason.
+@Observed(name = "order.service")
 @Service
 class OrderService {
 
@@ -25,49 +27,49 @@ class OrderService {
     private final OrderRepository orderRepository;
     private final RestClient mysteryBoxClient;
     private final List<Product> products;
-    private final Tracer tracer;
 
-    OrderService(OrderRepository orderRepository, RestClient.Builder restClientBuilder, OrderProperties orderProperties, OpenTelemetry openTelemetry, io.micrometer.observation.ObservationRegistry observationRegistry) {
+    OrderService(OrderRepository orderRepository, RestClient.Builder restClientBuilder,
+                 OrderProperties orderProperties, ObservationRegistry observationRegistry) {
         this.orderRepository = orderRepository;
         this.mysteryBoxClient = restClientBuilder
                 .baseUrl(orderProperties.mysteryBoxApiUrl())
                 .apiVersionInserter(usePathSegment(1)).build();
         this.products = orderProperties.products();
-        this.tracer = openTelemetry.getTracer(OrderService.class.getName());
         this.observationRegistry = observationRegistry;
     }
 
-    Order createOrder(List<Order.OrderLine> lines) {
+    // Records a dedicated latency histogram for order creation; complements the class-level @Observed
+    // timer by allowing independent percentile charts for this critical path.
+    @Timed(value = "order.create.time", description = "Time to create an order", histogram = true)
+    public Order createOrder(List<Order.OrderLine> lines) {
         log.info("Creating order with {} line(s)", lines.size());
         lines.forEach(l -> l.validate(products));
 
         var orderItems = getOrderItems(lines);
         var order = orderRepository.save(new Order(orderItems));
 
-        // Create observation, everything in observe is for timing
-        Observation.createNotStarted("order.service", observationRegistry).observe(() -> {
-            for (var item : order.items()) {
-                processItem(item);
-            }
-        });
+        // Programmatic Observation API: use when annotations aren't enough — e.g. wrapping
+        // a code block (not a method) or adding dynamic tags from local variables.
+        // Produces the same span + metrics as @Observed, just built manually.
+        Observation.createNotStarted("order.items.processing", observationRegistry)
+                .lowCardinalityKeyValue("itemCount", String.valueOf(order.items().size()))
+                .observe(() -> order.items().forEach(this::processItem));
 
         log.info("Order {} created", order.id());
         log.debug("Order details: {}", order);
-
         return order;
     }
 
-    void processItem(Order.OrderItem item) {
-
+    private void processItem(Order.OrderItem item) {
+        // lowCardinality tags → become metric labels (few distinct values, safe to chart).
+        // highCardinality tags → only attached to the trace span (many distinct values, would explode metrics).
         Observation.createNotStarted("order.item.process", observationRegistry)
-                .highCardinalityKeyValue("sku", item.sku())
-                .highCardinalityKeyValue("quantity", item.quantity() + "")
-                .observe(() -> {
-                    log.info("Processing item {}", item.sku());
-                });
+                .lowCardinalityKeyValue("sku", item.sku())
+                .highCardinalityKeyValue("quantity", String.valueOf(item.quantity()))
+                .observe(() -> log.info("Processing item {}", item.sku()));
     }
 
-    List<Order> getOrders() {
+    public List<Order> getOrders() {
         var orders = orderRepository.findAll();
         log.info("Fetching all {} orders", orders.size());
         return orders;
@@ -80,8 +82,6 @@ class OrderService {
         ).toList();
     }
 
-    @Timed
-    @Counted
     private MysteryBox createMysteryBox() {
         log.info("Requesting mystery box from mystery-box-service");
         var box = mysteryBoxClient.post()

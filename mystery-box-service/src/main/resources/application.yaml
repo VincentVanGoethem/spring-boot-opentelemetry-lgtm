@@ -6,7 +6,7 @@ spring:
     username: ${DB_USER:postgres}
     password: ${DB_PASSWORD:password}
   ai:
-    openai-sdk:
+    openai:
       api-key: ${OPENAI_API_KEY}
       chat.options.model: gpt-4o-mini
     chat.client.observations:
@@ -22,9 +22,13 @@ server.port: 8081
 management:
   endpoints.web.exposure.include: "*"
   endpoint.env.show-values: ALWAYS
-  tracing:
-    sampling.probability: 1.0
-    enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name} # These tag appears in all metrics → Correlation with logs/traces
+    distribution.percentiles-histogram:
+      http.server.requests: true
+      http.client.requests: true
+  tracing.sampling.probability: 1.0
   otlp.metrics.export.step: 5s
   observations.annotations.enabled: true
   opentelemetry:

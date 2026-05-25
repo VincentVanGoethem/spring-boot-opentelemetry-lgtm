@@ -9,6 +9,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+// Emits spans + metrics (latency, count, errors) for every method in this service
+// Propagates trace context to logs & downstream calls
+// Note: methods must be public — Spring AOP proxies only intercept public calls.
+// @Timed on private methods is silently ignored for the same reason.
 @Observed(name = "mystery.box.service")
 @Service
 class MysteryBoxService {
@@ -23,8 +27,10 @@ class MysteryBoxService {
         this.repository = repository;
     }
 
-    @Timed("mystery.box.generate")
-    MysteryBox generateMysteryBox() {
+    // Adds detailed latency metrics (p95, p99) for this method on top of the service-wide @Observed
+    // For full control, use the fluent builder: Timer.builder(...).register(meterRegistry)
+    @Timed(value = "mystery.boxes.generation.time", histogram = true)
+    public MysteryBox generateMysteryBox() {
         log.info("Generating mystery box via AI");
         var mysteryBox = this.chatClient.prompt()
                 .system("The id value should be null.")
@@ -36,7 +42,7 @@ class MysteryBoxService {
         return saved;
     }
 
-    Optional<MysteryBox> fetchMysteryBox(Long id) {
+    public Optional<MysteryBox> fetchMysteryBox(Long id) {
         log.debug("Fetching mystery box {}", id);
         return repository.findById(id);
     }

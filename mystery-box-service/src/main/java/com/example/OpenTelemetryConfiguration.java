@@ -25,36 +25,4 @@ public class OpenTelemetryConfiguration {
     InitializingBean installOpenTelemetryAppender(OpenTelemetry openTelemetry) {
         return () -> OpenTelemetryAppender.install(openTelemetry);
     }
-
-    // Can be remove once Spring Boot 4.1 is available as all beans below will be auto-configured
-    // https://github.com/spring-projects/spring-boot/pull/47935
-    @Bean
-    OpenTelemetryServerRequestObservationConvention openTelemetryServerRequestObservationConvention() {
-        return new OpenTelemetryServerRequestObservationConvention();
-    }
-
-    @Bean
-    OpenTelemetryJvmCpuMeterConventions openTelemetryJvmCpuMeterConventions() {
-        return new OpenTelemetryJvmCpuMeterConventions(Tags.empty());
-    }
-
-    @Bean
-    ProcessorMetrics processorMetrics() {
-        return new ProcessorMetrics(List.of(), new OpenTelemetryJvmCpuMeterConventions(Tags.empty()));
-    }
-
-    @Bean
-    JvmMemoryMetrics jvmMemoryMetrics() {
-        return new JvmMemoryMetrics(List.of(), new OpenTelemetryJvmMemoryMeterConventions(Tags.empty()));
-    }
-
-    @Bean
-    JvmThreadMetrics jvmThreadMetrics() {
-        return new JvmThreadMetrics(List.of(), new OpenTelemetryJvmThreadMeterConventions(Tags.empty()));
-    }
-
-    @Bean
-    ClassLoaderMetrics classLoaderMetrics() {
-        return new ClassLoaderMetrics(new OpenTelemetryJvmClassLoadingMeterConventions());
-    }
 }

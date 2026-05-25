@@ -26,7 +26,7 @@ public record Order(@Id @Nullable Long id, Instant createdAt,
     }
 
     @Table("order_items")
-    record OrderItem(@Id @Nullable Long id, String sku, int quantity,
+    public record OrderItem(@Id @Nullable Long id, String sku, int quantity,
                      @MappedCollection(idColumn = "order_item_id", keyColumn = "order_item_key") List<OrderItemContent> contents) {
 
         OrderItem(String sku, int quantity, List<OrderItemContent> contents) {
