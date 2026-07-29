@@ -60,14 +60,14 @@ This starts:
 ```bash
 export OPENAI_API_KEY=<your-key>
 cd mystery-box-service
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
 ### 3. Start order-service
 
 ```bash
 cd order-service
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
 ### 4. Open the shop
