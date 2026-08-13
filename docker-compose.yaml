@@ -57,6 +57,7 @@ services:
       DB_USER: postgres
       DB_PASSWORD: password
       OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OTEL_SEMCONV_STABILITY_OPT_IN: database # emit stable db.* attributes (db.query.text) on JDBC spans
       MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT: http://lgtm:4318/v1/traces
       MANAGEMENT_OPENTELEMETRY_LOGGING_EXPORT_OTLP_ENDPOINT: http://lgtm:4318/v1/logs
       MANAGEMENT_OTLP_METRICS_EXPORT_URL: http://lgtm:4318/v1/metrics
@@ -73,6 +74,7 @@ services:
       DB_USER: postgres
       DB_PASSWORD: password
       MYSTERY_BOX_SERVICE_URL: http://mystery-box-service:8081
+      OTEL_SEMCONV_STABILITY_OPT_IN: database # emit stable db.* attributes (db.query.text) on JDBC spans
       MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT: http://lgtm:4318/v1/traces
       MANAGEMENT_OPENTELEMETRY_LOGGING_EXPORT_OTLP_ENDPOINT: http://lgtm:4318/v1/logs
       MANAGEMENT_OTLP_METRICS_EXPORT_URL: http://lgtm:4318/v1/metrics
