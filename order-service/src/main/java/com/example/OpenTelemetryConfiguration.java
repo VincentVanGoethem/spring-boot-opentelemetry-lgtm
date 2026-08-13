@@ -32,6 +32,8 @@ public class OpenTelemetryConfiguration {
             public Object postProcessAfterInitialization(Object bean, String beanName) {
                 if (bean instanceof DataSource dataSource && !(bean instanceof OpenTelemetryDataSource)) {
                     return JdbcTelemetry.builder(openTelemetry.getObject())
+                            .setDataSourceInstrumenterEnabled(true) // span per getConnection()
+                            .setTransactionInstrumenterEnabled(true) // span per commit/rollback
                             .build()
                             .wrap(dataSource);
                 }

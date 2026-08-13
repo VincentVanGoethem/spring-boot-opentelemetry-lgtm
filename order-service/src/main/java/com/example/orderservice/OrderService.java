@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import static org.springframework.web.client.ApiVersionInserter.usePathSegment;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 
 import io.micrometer.core.annotation.Timed;
@@ -19,6 +21,7 @@ import io.micrometer.observation.ObservationRegistry;
 // @Timed on private methods (e.g. createMysteryBox) is silently ignored for the same reason.
 @Observed(name = "order.service")
 @Service
+@Transactional
 class OrderService {
 
     private static final Logger log = LoggerFactory.getLogger(OrderService.class);
