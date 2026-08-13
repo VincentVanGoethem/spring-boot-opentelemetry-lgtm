@@ -9,7 +9,7 @@ spring:
     openai:
       api-key: ${OPENAI_API_KEY}
       chat.options.model: gpt-4o-mini
-    chat.client.observations:
+    chat.observations:
       log-prompt: true
       log-completion: true
       include-error-logging: true

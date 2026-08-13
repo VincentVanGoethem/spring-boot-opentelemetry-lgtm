@@ -13,6 +13,7 @@ import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.instrumentation.jdbc.datasource.JdbcTelemetry;
 import io.opentelemetry.instrumentation.jdbc.datasource.OpenTelemetryDataSource;
 import io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender;
+import org.springframework.ai.chat.observation.ChatModelObservationConvention;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -29,6 +30,12 @@ public class OpenTelemetryConfiguration {
     @Bean
     InitializingBean installOpenTelemetryAppender(OpenTelemetry openTelemetry) {
         return () -> OpenTelemetryAppender.install(openTelemetry);
+    }
+
+    /** Puts the prompt and the completion on the {@code gen_ai.client.operation} span. */
+    @Bean
+    ChatModelObservationConvention promptContentObservationConvention() {
+        return new PromptContentObservationConvention();
     }
 
     /**
