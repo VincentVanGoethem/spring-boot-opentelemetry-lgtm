@@ -15,7 +15,12 @@ Everything the **agent** reads lives in [`otel-agent.properties`](./otel-agent.p
 
 The Spring-side settings that shape what the agent has to work with — actuator exposure, the Micrometer `@Timed` aspects, the log correlation pattern — sit in each service's `application.yaml`, in the jar.
 
-This project previously used `spring-boot-starter-opentelemetry` instead — [`docs/zero-code-instrumentation.md`](./docs/zero-code-instrumentation.md) describes both approaches and every difference between them.
+This project previously used `spring-boot-starter-opentelemetry` instead. Two documents cover that:
+
+- [`docs/starter-vs-agent.md`](./docs/starter-vs-agent.md) — the migration, step by step, with the trade-offs of each approach.
+- [`docs/zero-code-instrumentation.md`](./docs/zero-code-instrumentation.md) — the reference for how the current setup works.
+
+Both are written in Dutch.
 
 ---
 
