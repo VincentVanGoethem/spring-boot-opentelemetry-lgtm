@@ -1,26 +1,44 @@
+# The Spring-side observability settings live here, in the jar. What the OpenTelemetry *agent*
+# reads does not: see ../otel-agent.properties, which docker-compose.yaml mounts at /otel and each
+# image's ENTRYPOINT points the agent at. See ../docs/zero-code-instrumentation.md.
 spring:
-  application.name: order-service
+  # Fully nested on purpose: the agent's Spring Boot resource provider parses this file itself
+  # and its YAML lookup only walks spring -> application -> name. It is only a fallback here,
+  # since otel.service.name is set explicitly at startup.
+  application:
+    name: order-service
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:5432/postgres
     username: ${DB_USER:postgres}
     password: ${DB_PASSWORD:password}
   sql.init.mode: always
 
+# The agent writes trace ids into the MDC under trace_id / span_id — note the underscores;
+# Boot's own tracing used traceId / spanId. Printing them keeps console output correlated with
+# what lands in Tempo and Loki.
+logging:
+  include-application-name: false
+  pattern:
+    correlation: "[${spring.application.name:},%X{trace_id:-},%X{span_id:-}] "
+
+# Note what is absent: no management.opentelemetry.*, no management.otlp.*, no management.tracing.*.
+# Exporters, endpoints, sampling and the export interval are the agent's job.
 management:
-  endpoints.web.exposure.include: "*"
-  endpoint.env.show-values: ALWAYS
+  # The agent's Micrometer bridge exports whatever is registered in Micrometer — but Micrometer's
+  # @Timed / @Counted aspects only get registered when this is on.
+  observations:
+    annotations:
+      enabled: true
   metrics:
     tags:
-      application: ${spring.application.name} # These tag appears in all metrics → Correlation with logs/traces
-    distribution.percentiles-histogram:
-      http.server.requests: true
-      http.client.requests: true
-  tracing.sampling.probability: 1.0
-  otlp.metrics.export.step: 5s
-  observations.annotations.enabled: true
-  opentelemetry:
-    tracing.export.otlp.endpoint: http://localhost:4318/v1/traces
-    logging.export.otlp.endpoint: http://localhost:4318/v1/logs
+      application: ${spring.application.name} # common tag on every meter
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    env:
+      show-values: ALWAYS
 
 order:
   mystery-box-api-url: ${MYSTERY_BOX_SERVICE_URL:http://localhost:8081}/api

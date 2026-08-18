@@ -48,19 +48,25 @@ services:
     depends_on:
       - lgtm
 
+  # Both services are instrumented with zero code, and this file holds almost none of it. The
+  # javaagent is downloaded into the image and attached by its ENTRYPOINT, together with the JVM
+  # arguments that are fixed properties of the image — see each service's Dockerfile.
+  #
+  # What is left here is what actually differs per deployment:
+  #   - otel-agent.properties, mounted read-only at /otel (edit + `docker compose restart`, no rebuild)
+  #   - OTEL_EXPORTER_OTLP_ENDPOINT, because where telemetry goes is not a property of the image
   mystery-box-service:
     image: mystery-box-service
     ports:
       - "8081:8081"
+    volumes:
+      - ./otel-agent.properties:/otel/otel-agent.properties:ro
     environment:
       DB_HOST: postgres
       DB_USER: postgres
       DB_PASSWORD: password
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-      OTEL_SEMCONV_STABILITY_OPT_IN: database # emit stable db.* attributes (db.query.text) on JDBC spans
-      MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT: http://lgtm:4318/v1/traces
-      MANAGEMENT_OPENTELEMETRY_LOGGING_EXPORT_OTLP_ENDPOINT: http://lgtm:4318/v1/logs
-      MANAGEMENT_OTLP_METRICS_EXPORT_URL: http://lgtm:4318/v1/metrics
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://lgtm:4318
     depends_on:
       - postgres
       - lgtm
@@ -69,15 +75,14 @@ services:
     image: order-service
     ports:
       - "8080:8080"
+    volumes:
+      - ./otel-agent.properties:/otel/otel-agent.properties:ro
     environment:
       DB_HOST: postgres
       DB_USER: postgres
       DB_PASSWORD: password
       MYSTERY_BOX_SERVICE_URL: http://mystery-box-service:8081
-      OTEL_SEMCONV_STABILITY_OPT_IN: database # emit stable db.* attributes (db.query.text) on JDBC spans
-      MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT: http://lgtm:4318/v1/traces
-      MANAGEMENT_OPENTELEMETRY_LOGGING_EXPORT_OTLP_ENDPOINT: http://lgtm:4318/v1/logs
-      MANAGEMENT_OTLP_METRICS_EXPORT_URL: http://lgtm:4318/v1/metrics
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://lgtm:4318
     depends_on:
       - postgres
       - lgtm

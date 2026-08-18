@@ -20,20 +20,9 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-opentelemetry</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.opentelemetry.instrumentation</groupId>
-			<artifactId>opentelemetry-logback-appender-1.0</artifactId>
-			<version>2.27.0-alpha</version>
-		</dependency>
-		<dependency>
-			<groupId>io.opentelemetry.instrumentation</groupId>
-			<artifactId>opentelemetry-jdbc</artifactId>
-			<version>2.27.0-alpha</version>
-		</dependency>
+
+		<!-- No io.opentelemetry.* dependency of any kind, not even the annotations: the business
+		     spans are declared in ../otel-agent.properties instead of in the code. -->
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -66,11 +55,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-opentelemetry-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc-test</artifactId>
 			<scope>test</scope>
 		</dependency>
@@ -89,14 +73,12 @@
 
 	<build>
 		<plugins>
+			<!-- This pom builds the application jar and nothing else. Everything about running it —
+			     the OpenTelemetry agent, the JVM arguments that attach and configure it, and where
+			     its configuration comes from — lives in the Dockerfile and docker-compose.yaml. -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<!-- Matches OTEL_SEMCONV_STABILITY_OPT_IN in docker-compose.yaml, so JDBC spans
-					     carry stable db.* attributes whichever way the service is started. -->
-					<jvmArguments>-Dotel.semconv-stability.opt-in=database</jvmArguments>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>

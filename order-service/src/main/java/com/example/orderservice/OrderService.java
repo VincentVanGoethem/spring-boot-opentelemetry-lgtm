@@ -11,38 +11,36 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 
 import io.micrometer.core.annotation.Timed;
-import io.micrometer.observation.annotation.Observed;
-import io.micrometer.observation.Observation;
-import io.micrometer.observation.ObservationRegistry;
 
-// Class-level @Observed instruments every public method:
-// emits spans + timer metrics (count, latency, errors) and propagates trace context to logs & downstream calls.
-// Note: methods must be public — Spring AOP proxies only intercept public calls.
-// @Timed on private methods (e.g. createMysteryBox) is silently ignored for the same reason.
-@Observed(name = "order.service")
+// This class contains no OpenTelemetry code and the module has no OpenTelemetry dependency.
+// The javaagent spans the edges of this service (HTTP in, RestClient out, JDBC) on its own, and the
+// business-level spans in between are declared in ../otel-agent.properties under
+// otel.instrumentation.methods.include — so the method structure below is what shapes the trace.
+//
+// That also means: renaming or inlining a method here silently drops its span. The
+// otel.instrumentation.methods.include entry is the contract; keep the two in step.
 @Service
 @Transactional
 class OrderService {
 
     private static final Logger log = LoggerFactory.getLogger(OrderService.class);
 
-    private final ObservationRegistry observationRegistry;
     private final OrderRepository orderRepository;
     private final RestClient mysteryBoxClient;
     private final List<Product> products;
 
     OrderService(OrderRepository orderRepository, RestClient.Builder restClientBuilder,
-                 OrderProperties orderProperties, ObservationRegistry observationRegistry) {
+                 OrderProperties orderProperties) {
         this.orderRepository = orderRepository;
         this.mysteryBoxClient = restClientBuilder
                 .baseUrl(orderProperties.mysteryBoxApiUrl())
                 .apiVersionInserter(usePathSegment(1)).build();
         this.products = orderProperties.products();
-        this.observationRegistry = observationRegistry;
     }
 
-    // Records a dedicated latency histogram for order creation; complements the class-level @Observed
-    // timer by allowing independent percentile charts for this critical path.
+    // @Timed comes from Micrometer (spring-boot-starter-actuator), not OpenTelemetry: it records a
+    // latency histogram which the agent's Micrometer bridge exports over OTLP. It goes through
+    // Spring AOP, so this method has to stay public — the agent's method instrumentation does not.
     @Timed(value = "order.create.time", description = "Time to create an order", histogram = true)
     public Order createOrder(List<Order.OrderLine> lines) {
         log.info("Creating order with {} line(s)", lines.size());
@@ -51,25 +49,24 @@ class OrderService {
         var orderItems = getOrderItems(lines);
         var order = orderRepository.save(new Order(orderItems));
 
-        // Programmatic Observation API: use when annotations aren't enough — e.g. wrapping
-        // a code block (not a method) or adding dynamic tags from local variables.
-        // Produces the same span + metrics as @Observed, just built manually.
-        Observation.createNotStarted("order.items.processing", observationRegistry)
-                .lowCardinalityKeyValue("itemCount", String.valueOf(order.items().size()))
-                .observe(() -> order.items().forEach(this::processItem));
+        processItems(order.items());
 
-        log.info("Order {} created", order.id());
+        log.info("Order {} created with {} item(s)", order.id(), order.items().size());
         log.debug("Order details: {}", order);
         return order;
     }
 
+    // Private, and called from within the same bean. Spring AOP could not intercept either, but the
+    // agent weaves the bytecode directly, so both still produce spans.
+    private void processItems(List<Order.OrderItem> items) {
+        log.info("Processing {} item(s)", items.size());
+        items.forEach(this::processItem);
+    }
+
+    // Detail that used to sit on the span as an attribute now lives in the log line. The agent
+    // stamps trace_id/span_id into every record, so Grafana still ties this back to the span.
     private void processItem(Order.OrderItem item) {
-        // lowCardinality tags → become metric labels (few distinct values, safe to chart).
-        // highCardinality tags → only attached to the trace span (many distinct values, would explode metrics).
-        Observation.createNotStarted("order.item.process", observationRegistry)
-                .lowCardinalityKeyValue("sku", item.sku())
-                .highCardinalityKeyValue("quantity", String.valueOf(item.quantity()))
-                .observe(() -> log.info("Processing item {}", item.sku()));
+        log.info("Processing item {} (quantity {})", item.sku(), item.quantity());
     }
 
     public List<Order> getOrders() {
