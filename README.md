@@ -76,7 +76,21 @@ Open the shop at [http://localhost:8080](http://localhost:8080) and place some o
 
 ```bash
 docker compose restart order-service mystery-box-service
+export OPENAI_API_KEY=<your-key>
+cd mystery-box-service
+./mvnw spring-boot:run
 ```
+
+### 3. Start order-service
+
+```bash
+cd order-service
+./mvnw spring-boot:run
+```
+
+### 4. Open the shop
+
+Navigate to [http://localhost:8080](http://localhost:8080) and place some orders. The Grafana dashboard is available at [http://localhost:3000](http://localhost:3000) (credentials: `admin` / `admin`).
 
 ---
 
