@@ -48,7 +48,19 @@ datasources:
         spanStartTimeShift: "-5m"
         spanEndTimeShift: "5m"
         filterByTraceID: true
-        filterBySpanID: false
+        # On, not off: trace_id and span_id are Loki *structured metadata*, not indexed labels, so
+        # Grafana can only build a valid Loki query ({service_name="..."} | trace_id="..." |
+        # span_id="...") if it has both a base label selector (the tags below) and something to
+        # scope past trace_id. Without filterBySpanID, "Logs for this span" on the GenAI `chat`
+        # span returns every log line for the whole trace instead of just its own
+        # gen_ai.user.message / gen_ai.choice records — which is where the prompt content lives,
+        # since the agent's GenAI instrumentation emits it as log records, not span attributes.
+        filterBySpanID: true
+        # Base label selector for the query above. Without this, Grafana falls back to an empty
+        # `{}` selector, which Loki rejects outright — so "Logs for this span" silently failed.
+        tags:
+          - key: service.name
+            value: service_name
         customQuery: false
       tracesToMetrics:
         datasourceUid: prometheus

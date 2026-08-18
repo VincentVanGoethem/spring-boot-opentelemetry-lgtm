@@ -21,6 +21,9 @@ services:
       - ./grafana/datasources.yaml:/otel-lgtm/grafana/conf/provisioning/datasources/grafana-datasources.yaml:ro
     environment:
       GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /otel-lgtm/grafana/conf/provisioning/dashboards/custom/custom-dashboard.json
+      # Traces Drilldown isn't bundled in this image (only Logs and Metrics Drilldown are) — install
+      # it explicitly so it shows up under the Drilldown menu next to those two.
+      GF_INSTALL_PLUGINS: grafana-exploretraces-app
 
   otel-ebpf-profiler:
     image: otel/opentelemetry-collector-ebpf-profiler:latest
