@@ -35,7 +35,7 @@ const BASE_URL = __ENV.BASE_URL || 'http://localhost:8080';
 const MYSTERY_BOX_REQUESTS = parseInt(__ENV.MYSTERY_BOX_REQUESTS || '0', 10);
 let mysteryBoxRequestsRemaining = MYSTERY_BOX_REQUESTS;
 
-const SKUS = ['RUBBER-DUCK', 'FOREVER-PEN', 'ALARM-CLOCK', 'UMBRELLA'];
+const SKUS = ['LAPTOP-ULTRA', 'LAPTOP-PRO', 'LAPTOP-WORKSTATION'];
 
 // Returns a random int in [min, max]
 function randInt(min, max) {

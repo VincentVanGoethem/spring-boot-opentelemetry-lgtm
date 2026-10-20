@@ -47,19 +47,15 @@ order:
       name: Mystery Box
       cost: 49.99
       stock: 13
-    - sku: RUBBER-DUCK
-      name: Sentient Rubber Duck
-      cost: 4.99
-      stock: 42
-    - sku: FOREVER-PEN
-      name: Pen That Never Runs Out (It Does)
-      cost: 9.99
-      stock: 15
-    - sku: ALARM-CLOCK
-      name: Alarm Clock That Judges You
-      cost: 19.99
-      stock: 8
-    - sku: UMBRELLA
-      name: Umbrella That Inverts in Light Breeze
-      cost: 7.49
-      stock: 23
+    - sku: LAPTOP-ULTRA
+      name: Farosbay UltraLite 13
+      cost: 1199.00
+      stock: 18
+    - sku: LAPTOP-PRO
+      name: Farosbay ProBook 14
+      cost: 899.00
+      stock: 25
+    - sku: LAPTOP-WORKSTATION
+      name: Farosbay Workstation 16
+      cost: 1499.00
+      stock: 10

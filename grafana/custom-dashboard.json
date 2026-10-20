@@ -15,7 +15,7 @@
       }
     ]
   },
-  "description": "Deep-dive business analytics for the Arcane Emporium: SKU breakdown, order value distribution, error analysis, mystery box insights, and service latency comparison.",
+  "description": "Deep-dive business analytics for Farosbay: SKU breakdown, order value distribution, error analysis, mystery box insights, and service latency comparison.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -1399,7 +1399,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Arcane Emporium \u2014 Business Intelligence",
+  "title": "Farosbay \u2014 Business Intelligence",
   "uid": "arcane-emporium-bi",
   "version": 2,
   "weekStart": ""

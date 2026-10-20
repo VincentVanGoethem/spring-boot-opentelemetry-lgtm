@@ -4,7 +4,7 @@ A demo project showing how **Spring Boot 4** is instrumented with **OpenTelemetr
 
 The demo consists of two services:
 
-- **order-service** — a web shop (The Arcane Emporium) where customers place orders. Exposes a Thymeleaf/htmx UI on port `8080`.
+- **order-service** — a web shop (Farosbay) where customers place orders. Exposes a Thymeleaf/htmx UI on port `8080`.
 - **mystery-box-service** — called by the order service when a Mystery Box is purchased; uses Spring AI (OpenAI) to generate a random box of contents. Runs on port `8081`.
 
 Both services emit **traces**, **metrics**, and **logs** via OTLP to the collector bundled inside the `grafana/otel-lgtm` container. A custom Grafana dashboard is provisioned automatically on startup.
@@ -15,12 +15,13 @@ Everything the **agent** reads lives in [`otel-agent.properties`](./otel-agent.p
 
 The Spring-side settings that shape what the agent has to work with — actuator exposure, the Micrometer `@Timed` aspects, the log correlation pattern — sit in each service's `application.yaml`, in the jar.
 
-This project previously used `spring-boot-starter-opentelemetry` instead. Two documents cover that:
+This project previously used `spring-boot-starter-opentelemetry` instead. Three resources cover that:
 
 - [`docs/starter-vs-agent.md`](./docs/starter-vs-agent.md) — the migration, step by step, with the trade-offs of each approach.
 - [`docs/zero-code-instrumentation.md`](./docs/zero-code-instrumentation.md) — the reference for how the current setup works.
+- [`docs/observability-ontrafeld.html`](./docs/observability-ontrafeld.html) — "Observability Ontrafeld", a slide deck covering the same material (open it in a browser). Based on the Spring I/O 2026 session [_Demystifying Observability for Spring Applications_](https://2026.springio.net/sessions/demystifying-observability-for-spring-applications/) by Timo Salm and Tiffany Jernigan, and the [`timosalm/spring-boot-opentelemetry-lgtm`](https://github.com/timosalm/spring-boot-opentelemetry-lgtm) repository this demo is built on.
 
-Both are written in Dutch.
+All three are written in Dutch.
 
 ---
 
@@ -139,7 +140,7 @@ Open **Explore → Loki** and filter by `service_name`. The agent's Logback inst
 
 [`load-test.js`](./load-test.js) is a [k6](https://github.com/grafana/k6) script that drives realistic traffic through the order-service:
 
-- Places random orders with 1–3 regular items (Rubber Duck, Forever Pen, Alarm Clock, Umbrella)
+- Places random orders with 1–3 regular items (Farosbay UltraLite 13, Farosbay ProBook 14, Farosbay Workstation 16)
 - Occasionally lists all orders to mix read and write traffic
 - Ramps from 5 → 20 virtual users, holds a spike, then ramps back down
 

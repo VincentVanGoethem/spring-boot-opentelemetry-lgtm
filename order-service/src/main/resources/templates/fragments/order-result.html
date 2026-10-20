@@ -6,8 +6,8 @@
   <div class="confirmation-page">
 
     <div class="confirmation-check">&#x2713;</div>
-    <h2 class="confirmation-title">Purchase Sealed</h2>
-    <p class="confirmation-subtitle">Your order has been bound to the arcane ledger.</p>
+    <h2 class="confirmation-title">Order Confirmed</h2>
+    <p class="confirmation-subtitle">Your order has been placed.</p>
 
     <div class="order-summary">
       <div th:each="item : ${orderedItems}" class="ordered-item">
@@ -16,7 +16,7 @@
           <span class="ordered-item-qty" th:text="'&times; ' + ${item.quantity()}"></span>
         </div>
         <div th:if="${not #lists.isEmpty(item.contents())}" class="mystery-reveal">
-          <h3 class="mystery-reveal-title">What Lurks Within&hellip;</h3>
+          <h3 class="mystery-reveal-title">What's Inside</h3>
           <div th:each="content, iter : ${item.contents()}" class="content-item"
                th:style="'animation-delay:' + ${iter.index * 0.15} + 's'">
             <div class="content-item-name" th:text="${content.name()}"></div>
@@ -26,7 +26,7 @@
       </div>
     </div>
 
-    <a href="/" class="btn-continue">Return to the Emporium</a>
+    <a href="/" class="btn-continue">Back to Farosbay</a>
   </div>
 </th:block>
 
