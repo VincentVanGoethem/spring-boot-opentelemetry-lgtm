@@ -1,6 +1,8 @@
 package com.example.orderservice;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +14,7 @@ import java.util.stream.Collectors;
 
 @Controller
 class OrderUiController {
+    private static final Logger log = LoggerFactory.getLogger(OrderUiController.class);
 
     private final OrderService orderService;
     private final List<Product> products;
@@ -29,6 +32,10 @@ class OrderUiController {
 
     @PostMapping("/orders")
     String order(@RequestBody List<Order.OrderLine> lines, Model model, HttpServletResponse response) {
+        log.info("Received UI order request: {}", lines);
+        if (lines != null) {
+            throw new RuntimeException("Grafana MCP Test");
+        }
         try {
             var order = orderService.createOrder(lines);
             model.addAttribute("orderedItems", order.items());

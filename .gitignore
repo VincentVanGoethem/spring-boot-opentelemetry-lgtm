@@ -33,3 +33,6 @@ build/
 ### VS Code ###
 .vscode/
 .env
+
+### Claude Code worktrees ###
+.claude/worktrees/
