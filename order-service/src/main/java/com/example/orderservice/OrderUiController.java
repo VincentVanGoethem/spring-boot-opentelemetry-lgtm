@@ -33,9 +33,6 @@ class OrderUiController {
     @PostMapping("/orders")
     String order(@RequestBody List<Order.OrderLine> lines, Model model, HttpServletResponse response) {
         log.info("Received UI order request: {}", lines);
-        if (lines != null) {
-            throw new RuntimeException("Grafana MCP Test");
-        }
         try {
             var order = orderService.createOrder(lines);
             model.addAttribute("orderedItems", order.items());
