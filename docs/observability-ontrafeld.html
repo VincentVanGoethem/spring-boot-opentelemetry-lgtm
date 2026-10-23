@@ -1857,12 +1857,286 @@ otel.instrumentation.genai.capture-message-content=true</pre>
     </div>
   </section>
 
-  <!-- 36 — closing -->
-  <section class="slide closing">
-    <p class="closing-line">Je ruilt <span class="hl-starter">precisie</span> in voor <span class="hl-agent">dekking</span>.</p>
-    <p class="leek-sub">Beide wachters kijken naar dezelfde applicatie, via dezelfde LGTM-stack.
-      Het verschil is wie het dagboek schrijft &mdash; de code zelf, of iets dat van buitenaf meekijkt.</p>
+  <!-- AI 1 — GRAFANA MCP, leek -->
+  <section class="slide leek">
+    <svg class="leek-icon" viewBox="0 0 100 100" role="img" aria-label="Een stekker die in een stopcontact past, symbool voor een gestandaardiseerde aansluiting">
+      <rect x="30" y="14" width="40" height="28" rx="5" fill="none" stroke="currentColor" stroke-width="3.2"/>
+      <line x1="42" y1="14" x2="42" y2="4" stroke="currentColor" stroke-width="3.2"/>
+      <line x1="58" y1="14" x2="58" y2="4" stroke="currentColor" stroke-width="3.2"/>
+      <path d="M50 42 L50 58" stroke="currentColor" stroke-width="3.2"/>
+      <rect x="22" y="58" width="56" height="34" rx="6" fill="none" stroke="currentColor" stroke-width="3.2"/>
+      <circle cx="40" cy="75" r="4" fill="currentColor"/>
+      <circle cx="60" cy="75" r="4" fill="currentColor"/>
+    </svg>
+    <p class="leek-statement">Wat als de AI zelf in Grafana kan kijken?</p>
+    <p class="leek-sub">Alles wat we tot nu toe verzamelden, lazen <b>wij</b> &mdash; op een dashboard,
+      in een trace. Met een <b>MCP-server</b> krijgt een AI-assistent dezelfde toegang: één
+      standaard-stekker, en de assistent kan logs doorzoeken en traces openen alsof het
+      zijn eigen gereedschap is.</p>
   </section>
+
+  <!-- AI 2 — GRAFANA MCP, technical -->
+  <section class="slide tech">
+    <div class="kicker c-pink"><span class="dot"></span>Grafana MCP</div>
+    <h2>De LGTM-stack als gereedschapskist voor een AI</h2>
+    <div class="tech-body">
+      <div class="tech-cols wide-left">
+        <div class="tech-col">
+          <figure class="diagram">
+            <svg viewBox="0 0 600 300" role="img" aria-label="Claude Code praat via MCP over HTTP met de mcp-grafana container, die via de Grafana API Loki, Tempo, Prometheus en Pyroscope bevraagt">
+              <defs>
+                <marker id="arwMcp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+                </marker>
+              </defs>
+
+              <rect x="10" y="50" width="140" height="64" rx="6" class="svg-node-fill" stroke="var(--starter)" stroke-width="1.6"/>
+              <text x="80" y="78" text-anchor="middle" class="svg-label" font-size="13" font-weight="600">Claude Code</text>
+              <text x="80" y="96" text-anchor="middle" class="svg-sublabel" font-size="10">sessie, skill of routine</text>
+
+              <rect x="225" y="50" width="150" height="64" rx="6" class="svg-node-fill" stroke="var(--pink)" stroke-width="1.6"/>
+              <text x="300" y="78" text-anchor="middle" class="svg-label" font-size="13" font-weight="600">mcp-grafana</text>
+              <text x="300" y="96" text-anchor="middle" class="svg-sublabel" font-size="10">container, poort 8888</text>
+
+              <rect x="450" y="50" width="140" height="64" rx="6" class="svg-node-fill svg-node-stroke" stroke-width="1.4"/>
+              <text x="520" y="78" text-anchor="middle" class="svg-label" font-size="13" font-weight="600">Grafana</text>
+              <text x="520" y="96" text-anchor="middle" class="svg-sublabel" font-size="10">datasources</text>
+
+              <line x1="150" y1="82" x2="223" y2="82" stroke="currentColor" stroke-width="1.4" marker-end="url(#arwMcp)"/>
+              <text x="187" y="72" text-anchor="middle" class="svg-arrow-label" font-size="10">MCP / HTTP</text>
+              <line x1="375" y1="82" x2="448" y2="82" stroke="currentColor" stroke-width="1.4" marker-end="url(#arwMcp)"/>
+              <text x="412" y="72" text-anchor="middle" class="svg-arrow-label" font-size="10">REST API</text>
+
+              <rect x="10" y="196" width="135" height="64" rx="5" class="svg-node-fill svg-node-stroke" stroke-width="1.2"/>
+              <text x="77" y="222" text-anchor="middle" class="svg-label" font-size="12" font-weight="600">Loki</text>
+              <text x="77" y="242" text-anchor="middle" class="svg-sublabel" font-size="9.5">query_loki_logs</text>
+              <rect x="160" y="196" width="135" height="64" rx="5" class="svg-node-fill svg-node-stroke" stroke-width="1.2"/>
+              <text x="227" y="222" text-anchor="middle" class="svg-label" font-size="12" font-weight="600">Tempo</text>
+              <text x="227" y="242" text-anchor="middle" class="svg-sublabel" font-size="9.5">tempo_traceql-search</text>
+              <rect x="310" y="196" width="135" height="64" rx="5" class="svg-node-fill svg-node-stroke" stroke-width="1.2"/>
+              <text x="377" y="222" text-anchor="middle" class="svg-label" font-size="12" font-weight="600">Prometheus</text>
+              <text x="377" y="242" text-anchor="middle" class="svg-sublabel" font-size="9.5">query_prometheus</text>
+              <rect x="460" y="196" width="135" height="64" rx="5" class="svg-node-fill svg-node-stroke" stroke-width="1.2"/>
+              <text x="527" y="222" text-anchor="middle" class="svg-label" font-size="12" font-weight="600">Pyroscope</text>
+              <text x="527" y="242" text-anchor="middle" class="svg-sublabel" font-size="9.5">query_pyroscope</text>
+
+              <line x1="500" y1="114" x2="85" y2="194" stroke="currentColor" stroke-width="1.1" marker-end="url(#arwMcp)"/>
+              <line x1="508" y1="114" x2="232" y2="194" stroke="currentColor" stroke-width="1.1" marker-end="url(#arwMcp)"/>
+              <line x1="516" y1="114" x2="380" y2="194" stroke="currentColor" stroke-width="1.1" marker-end="url(#arwMcp)"/>
+              <line x1="524" y1="114" x2="527" y2="194" stroke="currentColor" stroke-width="1.1" marker-end="url(#arwMcp)"/>
+            </svg>
+            <figcaption>Elke datasource wordt een set tools die de AI zelf kiest en aanroept &mdash;
+              met LogQL, TraceQL en PromQL als taal.</figcaption>
+          </figure>
+        </div>
+        <div class="tech-col">
+          <div class="code-block">
+            <div class="code-label">docker-compose.yaml</div>
+<pre>mcp-grafana:
+  image: grafana/mcp-grafana:latest
+  command: ["--transport", "streamable-http",
+            "--address", "0.0.0.0:8888"]
+  ports: ["8888:8888"]
+  environment:
+    GRAFANA_URL: http://lgtm:3000</pre>
+          </div>
+          <div class="code-block">
+            <div class="code-label">.mcp.json &mdash; in de repo</div>
+<pre>{ "mcpServers": { "grafana": {
+    "type": "http",
+    "url": "http://localhost:8888/mcp" } } }</pre>
+          </div>
+          <ul class="fact-list">
+            <li><span class="mk">&#8226;</span><span><b>MCP</b> (Model Context Protocol) is een open standaard om tools aan een AI te hangen &mdash; hetzelfde N&nbsp;+&nbsp;M-verhaal als OpenTelemetry, maar dan voor AI-integraties.</span></li>
+            <li><span class="mk">&#8226;</span><span>Eén extra container naast de stack. Wie de repo opent, krijgt de Grafana-tools er automatisch bij.</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI 3 — WATCHDOG, leek -->
+  <section class="slide leek">
+    <svg class="leek-icon" viewBox="0 0 100 100" role="img" aria-label="Een vergrootglas boven drie logregels, waarvan er één gemarkeerd is als fout">
+      <line x1="10" y1="22" x2="62" y2="22" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.45"/>
+      <line x1="10" y1="38" x2="52" y2="38" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+      <line x1="10" y1="54" x2="44" y2="54" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.45"/>
+      <circle cx="66" cy="60" r="18" fill="none" stroke="currentColor" stroke-width="3.4"/>
+      <line x1="79" y1="73" x2="92" y2="88" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    </svg>
+    <p class="leek-statement">Een waakhond die elke minuut de logs leest &mdash; en zelf de bug oplost.</p>
+    <p class="leek-sub">Verschijnt er een fout in de logs, dan schrijft hij een <b>ticket</b>, zoekt
+      hij de oorzaak in de code, maakt hij een <b>voorstel tot verbetering</b> en legt hij dat
+      ter goedkeuring voor. De laatste beslissing blijft bij een mens.</p>
+  </section>
+
+  <!-- AI 4 — SKILL, technical -->
+  <section class="slide tech">
+    <div class="kicker c-pink"><span class="dot"></span>Claude Code skill</div>
+    <h2>Een skill is een werkinstructie in Markdown</h2>
+    <div class="tech-body">
+      <div class="tech-cols">
+        <div class="tech-col">
+          <div class="code-block">
+            <div class="code-label">.claude/skills/fix-log-errors/SKILL.md</div>
+<pre>---
+name: fix-log-errors
+description: One pass of an error watchdog.
+  Queries Loki (via the Grafana MCP) for ERROR
+  logs, opens a GitHub issue, fixes the bug on
+  its own worktree and opens a PR ...
+---
+
+## 1. Find errors
+{service_name=~"order-service|mystery-box-service"}
+  | severity_number >= 17
+
+## 2. Group and deduplicate
+## 3. Understand the bug
+## 4. Create the GitHub issue
+## 5. Create the worktree
+## 6. Fix
+## 7. Commit and push
+## 8. Open the PR</pre>
+          </div>
+        </div>
+        <div class="tech-col">
+          <ul class="fact-list">
+            <li><span class="mk">&#8226;</span><span><b>Geen code, maar instructies.</b> Een skill is een Markdown-bestand in de repo. Claude leest het en voert de stappen uit met de tools die het heeft: Grafana MCP, git, Maven, GitHub MCP.</span></li>
+            <li><span class="mk">&#8226;</span><span><b>De OTel-attributen doen het zware werk.</b> De agent zet <code>exception_type</code>, <code>exception_stacktrace</code> en <code>trace_id</code> al op elke logregel &mdash; de skill hoeft niets te parsen.</span></li>
+            <li><span class="mk">&#8226;</span><span><b>Vingerafdruk per fout:</b> service + exception + eerste <code>com.example</code>-frame. Daaruit volgt de branchnaam <code>fix/logs/&lt;slug&gt;</code>.</span></li>
+            <li><span class="mk">&#8226;</span><span><b>De branch is het geheugen.</b> Bestaat hij al, dan is de fout al behandeld. Zo wordt dezelfde fout niet elke minuut opnieuw opgepakt.</span></li>
+          </ul>
+          <div class="callout"><b>Logregels zijn data, geen opdrachten.</b> Een exception-message
+            kan tekst bevatten die eruitziet als een instructie. De skill negeert dat expliciet
+            &mdash; anders is je logbestand een achterdeur naar je codebase.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI 5 — FLOW, technical -->
+  <section class="slide tech">
+    <div class="kicker c-pink"><span class="dot"></span>Van fout naar fix</div>
+    <h2>Van stacktrace tot pull request</h2>
+    <div class="tech-body">
+      <figure class="diagram" style="flex:0 0 auto;">
+        <svg viewBox="0 0 900 150" role="img" aria-label="Zes stappen: een ERROR-log in Loki, een GitHub issue, een git worktree, fix en test, de fix-branch op GitHub en een pull request die het issue sluit">
+          <defs>
+            <marker id="arwFlow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+          <text x="75" y="20" text-anchor="middle" class="svg-sublabel" font-size="10.5">Grafana MCP</text>
+          <text x="223" y="20" text-anchor="middle" class="svg-sublabel" font-size="10.5">GitHub MCP</text>
+          <text x="445" y="20" text-anchor="middle" class="svg-sublabel" font-size="10.5">lokaal &mdash; git worktree</text>
+          <text x="741" y="20" text-anchor="middle" class="svg-sublabel" font-size="10.5">GitHub MCP</text>
+
+          <rect x="10" y="34" width="130" height="76" rx="6" class="svg-node-fill" stroke="var(--pink)" stroke-width="1.6"/>
+          <text x="75" y="66" text-anchor="middle" class="svg-label" font-size="12.5" font-weight="600">ERROR in Loki</text>
+          <text x="75" y="86" text-anchor="middle" class="svg-sublabel" font-size="9.5">severity &ge; 17</text>
+
+          <rect x="158" y="34" width="130" height="76" rx="6" class="svg-node-fill" stroke="var(--starter)" stroke-width="1.6"/>
+          <text x="223" y="66" text-anchor="middle" class="svg-label" font-size="12.5" font-weight="600">GitHub issue</text>
+          <text x="223" y="86" text-anchor="middle" class="svg-sublabel" font-size="9.5">stacktrace + oorzaak</text>
+
+          <rect x="306" y="34" width="130" height="76" rx="6" class="svg-node-fill" stroke="var(--agent)" stroke-width="1.6"/>
+          <text x="371" y="66" text-anchor="middle" class="svg-label" font-size="12.5" font-weight="600">Worktree</text>
+          <text x="371" y="86" text-anchor="middle" class="svg-sublabel" font-size="9.5">fix/logs/&lt;slug&gt;</text>
+
+          <rect x="454" y="34" width="130" height="76" rx="6" class="svg-node-fill" stroke="var(--agent)" stroke-width="1.6"/>
+          <text x="519" y="66" text-anchor="middle" class="svg-label" font-size="12.5" font-weight="600">Fix + test</text>
+          <text x="519" y="86" text-anchor="middle" class="svg-sublabel" font-size="9.5">./mvnw -o test</text>
+
+          <rect x="602" y="34" width="130" height="76" rx="6" class="svg-node-fill" stroke="var(--starter)" stroke-width="1.6"/>
+          <text x="667" y="66" text-anchor="middle" class="svg-label" font-size="12.5" font-weight="600">Branch</text>
+          <text x="667" y="86" text-anchor="middle" class="svg-sublabel" font-size="9.5">push_files</text>
+
+          <rect x="750" y="34" width="140" height="76" rx="6" class="svg-node-fill" stroke="var(--starter)" stroke-width="1.6"/>
+          <text x="820" y="66" text-anchor="middle" class="svg-label" font-size="12.5" font-weight="600">Pull request</text>
+          <text x="820" y="86" text-anchor="middle" class="svg-sublabel" font-size="9.5">&ldquo;Fixes #n&rdquo;</text>
+
+          <line x1="140" y1="72" x2="156" y2="72" stroke="currentColor" stroke-width="1.4" marker-end="url(#arwFlow)"/>
+          <line x1="288" y1="72" x2="304" y2="72" stroke="currentColor" stroke-width="1.4" marker-end="url(#arwFlow)"/>
+          <line x1="436" y1="72" x2="452" y2="72" stroke="currentColor" stroke-width="1.4" marker-end="url(#arwFlow)"/>
+          <line x1="584" y1="72" x2="600" y2="72" stroke="currentColor" stroke-width="1.4" marker-end="url(#arwFlow)"/>
+          <line x1="732" y1="72" x2="748" y2="72" stroke="currentColor" stroke-width="1.4" marker-end="url(#arwFlow)"/>
+
+          <text x="450" y="140" text-anchor="middle" class="svg-sublabel" font-size="10.5">één fout per ronde &mdash; geen nieuwe fout? Dan kost een ronde precies één Loki-query</text>
+        </svg>
+      </figure>
+      <div class="tech-cols">
+        <div class="tech-col">
+          <div class="measured"><span class="dot"></span>Echte run in deze repo</div>
+          <div class="stat-row">
+            <div class="stat"><div class="n">0 min</div><div class="t">eerste <code>RuntimeException</code> in Loki</div></div>
+            <div class="stat c-starter"><div class="n">#4</div><div class="t">issue, ruim 1 minuut later</div></div>
+            <div class="stat c-agent"><div class="n">#5</div><div class="t">PR met <code>Fixes #4</code>, ruim 2 minuten na de fout</div></div>
+          </div>
+          <ul class="fact-list">
+            <li><span class="mk">&#8226;</span><span>Het issue bevat de stacktrace, het aantal voorkomens, de <code>trace_id</code> en de analyse. De PR legt de oorzaak, de fix en de verificatie uit.</span></li>
+          </ul>
+        </div>
+        <div class="tech-col">
+          <div class="pm-group-label">Vangrails</div>
+          <ul class="fact-list c-agent">
+            <li><span class="mk">&#10003;</span><span>Werkt in een <b>eigen git worktree</b>: de checkout van de ontwikkelaar blijft onaangeroerd.</span></li>
+            <li><span class="mk">&#10003;</span><span>Schrijft alleen naar zijn eigen <code>fix/logs/*</code>-branch &mdash; <b>nooit naar <code>main</code></b>.</span></li>
+            <li><span class="mk">&#10003;</span><span><b>Merget nooit.</b> Een mens reviewt en beslist.</span></li>
+            <li><span class="mk">&#10003;</span><span>Geen codebug (database down, API-key weg)? Dan geen issue en geen branch, alleen een melding.</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI 6 — ROUTINE, technical -->
+  <section class="slide tech">
+    <div class="kicker c-pink"><span class="dot"></span>Routine</div>
+    <h2>Elke minuut, zonder dat iemand op de knop drukt</h2>
+    <div class="tech-body">
+      <div class="tech-cols">
+        <div class="tech-col">
+          <div class="code-block">
+            <div class="code-label">Claude-app &rarr; Scheduled &rarr; fix-log-errors</div>
+<pre>schedule: * * * * *        # elke minuut
+prompt:   Run one pass of the fix-log-errors
+          watchdog: read
+          .claude/skills/fix-log-errors/SKILL.md
+          and follow it exactly.</pre>
+          </div>
+          <div class="code-block">
+            <div class="code-label">of, binnen een open sessie</div>
+<pre>/loop 1m /fix-log-errors</pre>
+          </div>
+        </div>
+        <div class="tech-col">
+          <ul class="fact-list">
+            <li><span class="mk">&#8226;</span><span><b>Elke run is een verse sessie</b>, zonder geheugen van de vorige. Dat hoeft ook niet: de branches en open issues op GitHub zijn het geheugen.</span></li>
+            <li><span class="mk">&#8226;</span><span><b>De prompt is één zin.</b> Alle logica staat in de skill, onder versiebeheer naast de code. De skill aanpassen is de routine aanpassen.</span></li>
+            <li><span class="mk">&#8226;</span><span><b>Draait lokaal</b>, op de machine waar de stack draait. Een cloud-routine kan niet bij <code>localhost:8888</code>.</span></li>
+            <li><span class="mk">&#8226;</span><span><b>Een stille ronde is goedkoop</b>: één Loki-query, één regel antwoord. Het echte werk gebeurt alleen bij een nieuwe fout.</span></li>
+          </ul>
+          <div class="callout"><b>In productie</b> hang je dit eerder aan een Grafana-alert dan aan
+            een klok &mdash; maar het principe blijft: observability-data is nu ook input voor
+            een agent, niet alleen voor een mens.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI 7 — demo -->
+  <section class="slide demo">
+    <div class="demo-badge c-starter">Live demo</div>
+    <h2 class="demo-title" style="color:var(--pink)">De waakhond aan het werk</h2>
+    <ul class="demo-list">
+      <li><span class="num">1</span><span>Een fout injecteren in <code>OrderUiController</code> en een bestelling plaatsen.</span></li>
+      <li><span class="num">2</span><span>De <code>RuntimeException</code> opzoeken in Loki, met de trace erbij.</span></li>
+      <li><span class="num">3</span><span>Wachten op de volgende ronde: het issue verschijnt op GitHub.</span></li>
+      <li><span class="num">4</span><span>De pull request openen en de fix reviewen &mdash; de merge doen we zelf.</span></li>
+    </ul>
+  </section>
+
 
 </div>
 
